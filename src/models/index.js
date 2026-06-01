@@ -1,13 +1,12 @@
 'use strict';
 
-require('dotenv').config();
+require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env') });
 const fs = require('fs');
 const path = require('path');
 const { Sequelize } = require('sequelize');
 
 const env = process.env.NODE_ENV || 'development';
 
-// Conexión a MySQL usando DATABASE_URL del .env
 const sequelize = new Sequelize(process.env.DATABASE_URL, {
   dialect: 'mysql',
   logging: env === 'development' ? console.log : false,
@@ -15,8 +14,6 @@ const sequelize = new Sequelize(process.env.DATABASE_URL, {
 
 const db = {};
 
-// Carga automáticamente todos los archivos .js de esta carpeta
-// excepto index.js y archivos de test
 fs.readdirSync(__dirname)
   .filter(
     (file) =>
@@ -30,7 +27,6 @@ fs.readdirSync(__dirname)
     db[model.name] = model;
   });
 
-// Registra las asociaciones de cada modelo
 Object.keys(db).forEach((modelName) => {
   if (db[modelName].associate) {
     db[modelName].associate(db);

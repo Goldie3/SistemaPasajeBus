@@ -1,0 +1,26 @@
+module.exports = {
+  development: {
+    username: 'root',
+    password: '1234',
+    database: 'sistemapasajebus',
+    host: '127.0.0.1',
+    port: 3306,
+    dialect: 'mysql',
+  },
+  test: {
+    username: 'root',
+    password: '1234',
+    database: 'sistemapasajebus_test',
+    host: '127.0.0.1',
+    port: 3306,
+    dialect: 'mysql',
+  },
+  production: {
+    username: 'root',
+    password: '1234',
+    database: 'sistemapasajebus_production',
+    host: '127.0.0.1',
+    port: 3306,
+    dialect: 'mysql',
+  },
+};
