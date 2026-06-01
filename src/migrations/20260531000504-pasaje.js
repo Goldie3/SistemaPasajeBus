@@ -26,7 +26,6 @@ module.exports = {
       rutaId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        unique: true,
       },
       fecha: {
         type: Sequelize.DATE,
