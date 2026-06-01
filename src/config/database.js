@@ -1,26 +1,28 @@
+require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env') });
+
 module.exports = {
   development: {
-    username: 'root',
-    password: '1234',
-    database: 'sistemapasajebus',
-    host: '127.0.0.1',
-    port: 3306,
+    username: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
     dialect: 'mysql',
   },
   test: {
-    username: 'root',
-    password: '1234',
-    database: 'sistemapasajebus_test',
-    host: '127.0.0.1',
-    port: 3306,
+    username: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME_TEST,
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
     dialect: 'mysql',
   },
   production: {
-    username: 'root',
-    password: '1234',
-    database: 'sistemapasajebus_production',
-    host: '127.0.0.1',
-    port: 3306,
+    username: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME_PROD,
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
     dialect: 'mysql',
   },
 };
