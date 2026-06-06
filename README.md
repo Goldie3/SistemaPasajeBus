@@ -2,11 +2,11 @@
 
 ## Descripción
 
-Este proyecto es una aplicación para la gestión de pasajes de bus, incluyendo la reserva de asientos, el control de rutas y la administración de usuarios.
+Este proyecto es una aplicación para la gestión de pasajes de bus, incluyendo el control de rutas y la administración de pasajes.
 
 ## Stack
 
-- Lenguaje: JavaScript / TypeScript (según implementación)
+- Lenguaje: JavaScript
 - Framework: Node.js
 - Base de datos: MySQL / SQLite / MongoDB (según configuración)
 - Herramientas: npm, Express
