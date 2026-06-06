@@ -4,7 +4,7 @@ const rutaIncludes = [
   {
     model: Ruta,
     as: 'ruta',
-    attributes: ['nombre'],
+    attributes: ['Nombre'],
   },
 ];
 

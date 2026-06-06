@@ -4,6 +4,6 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
 
   routeRules: {
-    '/api/**': { proxy: 'http://localhost:4000/api/**' }
+    '/api/**': { proxy: 'http://localhost:4000/**' }
   }
 })

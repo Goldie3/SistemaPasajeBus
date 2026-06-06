@@ -32,6 +32,7 @@
         {{ loading ? 'Cargando...' : 'Entrar' }}
       </button>
     </form>
+    <p>¿No tienes cuenta? <NuxtLink to="/register">Regístrate</NuxtLink></p>
   </div>
 </template>
 
@@ -70,9 +71,9 @@ const handleLogin = async () => {
 
     // Guardar token (ejemplo con cookie o localStorage)
     const token = useCookie('auth_token')
-    token.value = data.accessToken
+    token.value = data.data.accessToken
 
-    router.push('/dashboard')
+    router.push('/principal')
   } catch (err) {
     errors.general = err.data?.message || 'Error al iniciar sesión'
   } finally {
