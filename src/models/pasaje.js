@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     apellido: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
     rutaId: {
       type: DataTypes.INTEGER,
@@ -22,7 +22,7 @@ module.exports = (sequelize, DataTypes) => {
     fecha: {
       type: DataTypes.DATE,
       allowNull: false,
-    }
+    },
   }, {
     tableName: 'Pasajes',
   });
@@ -30,7 +30,6 @@ module.exports = (sequelize, DataTypes) => {
   Pasaje.associate = (models) => {
     Pasaje.belongsTo(models.Ruta, { foreignKey: 'rutaId', as: 'ruta' });
   };
-  
 
   return Pasaje;
 };

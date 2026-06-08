@@ -6,11 +6,10 @@
       <input v-model="form.nombre" placeholder="Nombre" :disabled="loading" />
       <input v-model="form.apellido" placeholder="Apellido" :disabled="loading" />
       <input v-model="form.fecha" type="date" :disabled="loading" />
-      <input v-model="form.precio" type="number" step="0.01" placeholder="Precio" :disabled="loading" />
       <select v-model="form.rutaId" :disabled="loading">
         <option disabled value="">Selecciona una ruta</option>
         <option v-for="ruta in rutas" :key="ruta.id" :value="ruta.id">
-          {{ ruta.Nombre }}
+          {{ ruta.Nombre }} - ${{ ruta.precio }}
         </option>
       </select>
       <button type="submit" :disabled="loading">
@@ -40,7 +39,7 @@
           <td>{{ pasaje.apellido }}</td>
           <td>{{ pasaje.ruta?.Nombre }}</td>
           <td>{{ new Date(pasaje.fecha).toLocaleDateString() }}</td>
-          <td>${{ pasaje.precio }}</td>
+          <td>{{ pasaje.ruta?.precio }}</td>
           <td>
             <button @click="editar(pasaje)">Editar</button>
             <button @click="eliminar(pasaje.id)">Eliminar</button>

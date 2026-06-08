@@ -105,7 +105,7 @@ const handleRegister = async () => {
     const token = useCookie('auth_token')
     token.value = data.data.accessToken  // ← data.data
 
-    router.push('/dashboard')
+    router.push('/principal')
   } catch (err) {
     errors.general = err.data?.message || 'Error al crear la cuenta'
   } finally {

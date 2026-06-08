@@ -1,15 +1,14 @@
+// authRoutes.js
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController.js');
 const { authenticate } = require('../middleware/auth');
-const validate = require('../middleware/validate');
 
 
-router.post('/register', validate, authController.register);
-router.post('/login', validate, authController.login);
-router.post('/refresh', validate, authController.refresh);
-router.post('/logout',validate, authController.logout);
-
+router.post('/register', authController.register);
+router.post('/login', authController.login);
+router.post('/refresh', authController.refresh);
+router.post('/logout', authController.logout);
 
 router.get('/me', authenticate, authController.me);
 router.patch('/me', authenticate, authController.updateMe);
