@@ -1,7 +1,12 @@
-<!-- pages/login.vue -->
 <template>
-  <div class="login-container">
-    <form @submit.prevent="handleLogin">
+<div class="login-container">
+  <div>
+    <form class="login-card" @submit.prevent="handleLogin">
+      <div class="logo">
+        <h1>🚌 BusExpress</h1>
+        <p>Sistema de Venta de Pasajes</p>
+      </div>
+
       <h2>Iniciar Sesión</h2>
 
       <div class="field">
@@ -26,17 +31,25 @@
         <span v-if="errors.password" class="error">{{ errors.password }}</span>
       </div>
 
-      <span v-if="errors.general" class="error">{{ errors.general }}</span>
+      <span v-if="errors.general" class="error">
+        {{ errors.general }}
+      </span>
 
-      <button type="submit" :disabled="loading">
-        {{ loading ? 'Cargando...' : 'Entrar' }}
+      <button class="login-btn" type="submit" :disabled="loading">
+        {{ loading ? 'Ingresando...' : 'Entrar' }}
       </button>
     </form>
-    <p>¿No tienes cuenta? <NuxtLink to="/register">Regístrate</NuxtLink></p>
+
+    <p class="register-text">
+      ¿No tienes cuenta?
+      <NuxtLink to="/register">Regístrate aquí</NuxtLink>
+    </p>
   </div>
+</div>
 </template>
 
 <script setup>
+import 'assets/login.css'
 const form = reactive({
   email: '',
   password: '',

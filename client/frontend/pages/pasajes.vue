@@ -1,56 +1,129 @@
 <template>
-  <div>
-    <h2>Pasajes</h2>
+  <div class="pasajes-container">
 
-    <form @submit.prevent="guardar">
-      <input v-model="form.nombre" placeholder="Nombre" :disabled="loading" />
-      <input v-model="form.apellido" placeholder="Apellido" :disabled="loading" />
-      <input v-model="form.fecha" type="date" :disabled="loading" />
-      <select v-model="form.rutaId" :disabled="loading">
-        <option disabled value="">Selecciona una ruta</option>
-        <option v-for="ruta in rutas" :key="ruta.id" :value="ruta.id">
-          {{ ruta.Nombre }} - ${{ ruta.precio }}
-        </option>
-      </select>
-      <button type="submit" :disabled="loading">
-        {{ editando ? 'Actualizar' : 'Agregar' }}
-      </button>
-      <button type="button" v-if="editando" @click="cancelar">Cancelar</button>
-    </form>
+    <div class="header">
+      <h1>🎫 Gestión de Pasajes</h1>
+      <p>Administra los pasajes registrados en el sistema</p>
+    </div>
 
-    <p v-if="error" class="error">{{ error }}</p>
+    <div class="form-card">
+      <h2>{{ editando ? 'Editar Pasaje' : 'Nuevo Pasaje' }}</h2>
 
-    <table>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Nombre</th>
-          <th>Apellido</th>
-          <th>Ruta</th>
-          <th>Fecha</th>
-          <th>Precio</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="pasaje in pasajes" :key="pasaje.id">
-          <td>{{ pasaje.id }}</td>
-          <td>{{ pasaje.nombre }}</td>
-          <td>{{ pasaje.apellido }}</td>
-          <td>{{ pasaje.ruta?.Nombre }}</td>
-          <td>{{ new Date(pasaje.fecha).toLocaleDateString() }}</td>
-          <td>{{ pasaje.ruta?.precio }}</td>
-          <td>
-            <button @click="editar(pasaje)">Editar</button>
-            <button @click="eliminar(pasaje.id)">Eliminar</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+      <form @submit.prevent="guardar">
+
+        <div class="field">
+          <label>Nombre</label>
+          <input
+            v-model="form.nombre"
+            placeholder="Nombre"
+            :disabled="loading"
+          />
+        </div>
+
+        <div class="field">
+          <label>Apellido</label>
+          <input
+            v-model="form.apellido"
+            placeholder="Apellido"
+            :disabled="loading"
+          />
+        </div>
+
+        <div class="field">
+          <label>Fecha</label>
+          <input
+            v-model="form.fecha"
+            type="date"
+            :disabled="loading"
+          />
+        </div>
+
+        <div class="field">
+          <label>Ruta</label>
+          <select v-model="form.rutaId" :disabled="loading">
+            <option disabled value="">Selecciona una ruta</option>
+
+            <option
+              v-for="ruta in rutas"
+              :key="ruta.id"
+              :value="ruta.id"
+            >
+              {{ ruta.Nombre }} - ${{ ruta.precio }}
+            </option>
+          </select>
+        </div>
+
+        <div class="buttons">
+          <button class="btn-primary" type="submit" :disabled="loading">
+            {{ editando ? 'Actualizar' : 'Agregar' }}
+          </button>
+
+          <button
+            v-if="editando"
+            class="btn-secondary"
+            type="button"
+            @click="cancelar"
+          >
+            Cancelar
+          </button>
+        </div>
+
+      </form>
+
+      <p v-if="error" class="error">{{ error }}</p>
+    </div>
+
+    <div class="table-card">
+      <h2>Listado de Pasajes</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>Ruta</th>
+            <th>Fecha</th>
+            <th>Precio</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr v-for="pasaje in pasajes" :key="pasaje.id">
+            <td>{{ pasaje.id }}</td>
+            <td>{{ pasaje.nombre }}</td>
+            <td>{{ pasaje.apellido }}</td>
+            <td>{{ pasaje.ruta?.Nombre }}</td>
+            <td>{{ new Date(pasaje.fecha).toLocaleDateString() }}</td>
+            <td>${{ pasaje.ruta?.precio }}</td>
+
+            <td class="actions">
+              <button
+                class="btn-edit"
+                @click="editar(pasaje)"
+              >
+                Editar
+              </button>
+
+              <button
+                class="btn-delete"
+                @click="eliminar(pasaje.id)"
+              >
+                Eliminar
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+    </div>
+
   </div>
 </template>
 
 <script setup>
+import '~/assets/pasajes.css'
 definePageMeta({ middleware: 'auth' })
 const pasajes = ref([])
 const rutas = ref([])

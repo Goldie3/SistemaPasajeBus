@@ -1,7 +1,13 @@
 <!-- pages/register.vue -->
 <template>
-  <div class="register-container">
-    <form @submit.prevent="handleRegister">
+    <div class="register-container">
+    <form class="register-card" @submit.prevent="handleRegister">
+
+      <div class="logo">
+        <h1>🚌 BusExpress</h1>
+        <p>Sistema de Venta de Pasajes</p>
+      </div>
+
       <h2>Crear cuenta</h2>
 
       <div class="field">
@@ -12,7 +18,9 @@
           placeholder="Tu nombre"
           :disabled="loading"
         />
-        <span v-if="errors.nombre" class="error">{{ errors.nombre }}</span>
+        <span v-if="errors.nombre" class="error">
+          {{ errors.nombre }}
+        </span>
       </div>
 
       <div class="field">
@@ -23,7 +31,9 @@
           placeholder="tu@email.com"
           :disabled="loading"
         />
-        <span v-if="errors.email" class="error">{{ errors.email }}</span>
+        <span v-if="errors.email" class="error">
+          {{ errors.email }}
+        </span>
       </div>
 
       <div class="field">
@@ -34,7 +44,9 @@
           placeholder="••••••••"
           :disabled="loading"
         />
-        <span v-if="errors.password" class="error">{{ errors.password }}</span>
+        <span v-if="errors.password" class="error">
+          {{ errors.password }}
+        </span>
       </div>
 
       <div class="field">
@@ -45,21 +57,36 @@
           placeholder="••••••••"
           :disabled="loading"
         />
-        <span v-if="errors.confirm" class="error">{{ errors.confirm }}</span>
+        <span v-if="errors.confirm" class="error">
+          {{ errors.confirm }}
+        </span>
       </div>
 
-      <span v-if="errors.general" class="error">{{ errors.general }}</span>
+      <span v-if="errors.general" class="error">
+        {{ errors.general }}
+      </span>
 
-      <button type="submit" :disabled="loading">
+      <button
+        class="register-btn"
+        type="submit"
+        :disabled="loading"
+      >
         {{ loading ? 'Creando cuenta...' : 'Registrarse' }}
       </button>
 
-      <p>¿Ya tienes cuenta? <NuxtLink to="/login">Inicia sesión</NuxtLink></p>
+      <p class="login-link">
+        ¿Ya tienes cuenta?
+        <NuxtLink to="/login">
+          Inicia sesión
+        </NuxtLink>
+      </p>
+
     </form>
   </div>
 </template>
 
 <script setup>
+import '~/assets/register.css'
 const form = reactive({
   nombre: '',
   email: '',

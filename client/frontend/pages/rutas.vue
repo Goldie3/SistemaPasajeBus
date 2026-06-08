@@ -1,43 +1,105 @@
 <template>
-  <div>
-    <h2>Rutas</h2>
+  <div class="rutas-container">
 
-    <form @submit.prevent="guardar">
-      <input v-model="form.Nombre" placeholder="Nombre de la ruta" :disabled="loading" />
-      <input v-model="form.precio" type="number" step="0.01" placeholder="Precio" :disabled="loading" />
-      <button type="submit" :disabled="loading">
-        {{ editando ? 'Actualizar' : 'Agregar' }}
-      </button>
-      <button type="button" v-if="editando" @click="cancelar">Cancelar</button>
-    </form>
+    <div class="header">
+      <h1>🛣️ Gestión de Rutas</h1>
+      <p>Administra las rutas disponibles del sistema</p>
+    </div>
 
-    <p v-if="error" class="error">{{ error }}</p>
+    <div class="form-card">
+      <h2>{{ editando ? 'Editar Ruta' : 'Nueva Ruta' }}</h2>
 
-    <table>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Nombre</th>
-          <th>Precio</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="ruta in rutas" :key="ruta.id">
-          <td>{{ ruta.id }}</td>
-          <td>{{ ruta.Nombre }}</td>
-          <td>{{ ruta.precio }}</td>
-          <td>
-            <button @click="editar(ruta)">Editar</button>
-            <button @click="eliminar(ruta.id)">Eliminar</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+      <form @submit.prevent="guardar">
+
+        <div class="field">
+          <label>Nombre de la Ruta</label>
+          <input
+            v-model="form.Nombre"
+            placeholder="Nombre de la ruta"
+            :disabled="loading"
+          />
+        </div>
+
+        <div class="field">
+          <label>Precio</label>
+          <input
+            v-model="form.precio"
+            type="number"
+            step="0.01"
+            placeholder="Precio"
+            :disabled="loading"
+          />
+        </div>
+
+        <div class="buttons">
+          <button
+            class="btn-primary"
+            type="submit"
+            :disabled="loading"
+          >
+            {{ editando ? 'Actualizar' : 'Agregar' }}
+          </button>
+
+          <button
+            v-if="editando"
+            class="btn-secondary"
+            type="button"
+            @click="cancelar"
+          >
+            Cancelar
+          </button>
+        </div>
+
+      </form>
+
+      <p v-if="error" class="error">{{ error }}</p>
+    </div>
+
+    <div class="table-card">
+      <h2>Listado de Rutas</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Precio</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr v-for="ruta in rutas" :key="ruta.id">
+            <td>{{ ruta.id }}</td>
+            <td>{{ ruta.Nombre }}</td>
+            <td>${{ ruta.precio }}</td>
+
+            <td class="actions">
+              <button
+                class="btn-edit"
+                @click="editar(ruta)"
+              >
+                Editar
+              </button>
+
+              <button
+                class="btn-delete"
+                @click="eliminar(ruta.id)"
+              >
+                Eliminar
+              </button>
+            </td>
+          </tr>
+        </tbody>
+
+      </table>
+    </div>
+
   </div>
 </template>
 
 <script setup>
+import '~/assets/rutas.css'
 definePageMeta({ middleware: 'auth' })
 const rutas = ref([])
 const form = reactive({ Nombre: '', precio: '' })
