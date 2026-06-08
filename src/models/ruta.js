@@ -11,6 +11,9 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
+      precio: {
+      type: DataTypes.FLOAT,
+      allowNull: false,
   }, {
     tableName: 'Rutas',
   });

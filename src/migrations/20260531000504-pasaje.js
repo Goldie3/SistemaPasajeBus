@@ -31,10 +31,6 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: false,
       },
-      precio: {
-        type: Sequelize.DECIMAL(10, 2),
-        allowNull: false,
-      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
