@@ -44,6 +44,7 @@
       ¿No tienes cuenta?
       <NuxtLink to="/register">Regístrate aquí</NuxtLink>
     </p>
+    <NuxtLink to="/nuevapassword">¿Olvidaste tu contraseña?</NuxtLink>
   </div>
 </div>
 </template>
