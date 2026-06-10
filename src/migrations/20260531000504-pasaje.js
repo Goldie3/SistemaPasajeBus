@@ -31,6 +31,10 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: false,
       },
+      asiento: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

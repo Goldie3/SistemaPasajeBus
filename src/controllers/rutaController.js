@@ -1,4 +1,5 @@
 const { Ruta } = require('../models');
+const { Op } = require('sequelize');
 
 exports.getRutas = async (req, res) => {
   try {

@@ -64,6 +64,7 @@
             <th>ID</th>
             <th>Nombre</th>
             <th>Precio</th>
+            <th>Capacidad</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -73,6 +74,7 @@
             <td>{{ ruta.id }}</td>
             <td>{{ ruta.Nombre }}</td>
             <td>${{ ruta.precio }}</td>
+            <td>{{ ruta.capacidad }}</td>
 
             <td class="actions">
               <button
@@ -102,7 +104,7 @@
 import '~/assets/rutas.css'
 definePageMeta({ middleware: 'auth' })
 const rutas = ref([])
-const form = reactive({ Nombre: '', precio: '' })
+const form = reactive({ Nombre: '', precio: '', capacidad: '' })
 const editando = ref(null)
 const loading = ref(false)
 const error = ref('')
@@ -147,12 +149,14 @@ const editar = (ruta) => {
   editando.value = ruta.id
   form.Nombre = ruta.Nombre
   form.precio = ruta.precio
+  form.capacidad = ruta.capacidad
 }
 
 const cancelar = () => {
   editando.value = null
   form.Nombre = ''
   form.precio = ''
+  form.capacidad = ''
 }
 
 const eliminar = async (id) => {

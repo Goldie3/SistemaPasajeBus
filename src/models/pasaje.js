@@ -23,6 +23,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DATE,
       allowNull: false,
     },
+    asiento: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
   }, {
     tableName: 'Pasajes',
   });

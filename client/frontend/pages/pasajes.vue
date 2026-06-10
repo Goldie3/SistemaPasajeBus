@@ -85,6 +85,7 @@
             <th>Ruta</th>
             <th>Fecha</th>
             <th>Precio</th>
+            <th>Asiento</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -97,7 +98,7 @@
             <td>{{ pasaje.ruta?.Nombre }}</td>
             <td>{{ new Date(pasaje.fecha).toLocaleDateString() }}</td>
             <td>${{ pasaje.ruta?.precio }}</td>
-
+            <td>{{ pasaje.asiento }}</td>
             <td class="actions">
               <button
                 class="btn-edit"
@@ -133,6 +134,7 @@ const form = reactive({
   fecha: '',
   precio: '',
   rutaId: '',
+  asiento: '',
 })
 const editando = ref(null)
 const loading = ref(false)
@@ -185,6 +187,7 @@ const editar = (pasaje) => {
   form.fecha = pasaje.fecha?.split('T')[0]
   form.precio = pasaje.precio
   form.rutaId = pasaje.rutaId
+  form.asiento = pasaje.asiento
 }
 
 const cancelar = () => {

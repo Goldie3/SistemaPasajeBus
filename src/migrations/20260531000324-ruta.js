@@ -23,6 +23,10 @@ module.exports = {
         type: Sequelize.FLOAT,
         allowNull: false,
       },
+      capacidad: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

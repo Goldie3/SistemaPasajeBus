@@ -1,3 +1,4 @@
+<!-- pages/dashboard.vue -->
 <template>
   <div class="dashboard">
     <nav>
@@ -38,7 +39,7 @@
         <h3>Reservar Viaje</h3>
 
         <div v-if="exito" class="alert alert--success">
-          ✓ Pasaje creado correctamente.
+          ✓ Pasaje creado correctamente. Asiento {{ asientoConfirmado }}.
         </div>
         <div v-if="error" class="alert alert--error">
           {{ error }}
@@ -57,7 +58,7 @@
 
           <div class="field">
             <label>Ruta *</label>
-            <select v-model="form.rutaId" required :disabled="cargandoRutas">
+            <select v-model="form.rutaId" required :disabled="cargandoRutas" @change="onRutaChange">
               <option value="" disabled>
                 {{ cargandoRutas ? 'Cargando rutas...' : 'Selecciona una ruta' }}
               </option>
@@ -69,12 +70,54 @@
 
           <div class="field">
             <label>Fecha *</label>
-            <input v-model="form.fecha" type="date" :min="hoy" required />
+            <input v-model="form.fecha" type="date" :min="hoy" required @change="onFechaChange" />
+          </div>
+
+          <!-- Mapa de asientos -->
+          <div v-if="form.rutaId && form.fecha" class="field">
+            <label>
+              Asiento *
+              <span v-if="cargandoAsientos" class="cargando-asientos">Cargando...</span>
+              <span v-else class="disponibles-badge">{{ disponibles }} disponibles</span>
+            </label>
+
+            <div v-if="!cargandoAsientos" class="asientos-grid">
+              <button
+                v-for="n in capacidad"
+                :key="n"
+                type="button"
+                class="asiento"
+                :class="{
+                  'asiento--ocupado': ocupados.includes(n),
+                  'asiento--seleccionado': form.asiento === n,
+                }"
+                :disabled="ocupados.includes(n)"
+                @click="form.asiento = n"
+              >
+                {{ n }}
+              </button>
+            </div>
+
+            <div class="leyenda">
+              <div class="leyenda-item">
+                <div class="leyenda-color leyenda-color--disponible"></div> Disponible
+              </div>
+              <div class="leyenda-item">
+                <div class="leyenda-color leyenda-color--ocupado"></div> Ocupado
+              </div>
+              <div class="leyenda-item">
+                <div class="leyenda-color leyenda-color--seleccionado"></div> Seleccionado
+              </div>
+            </div>
+
+            <p v-if="form.asiento" class="asiento-seleccionado-txt">
+              Asiento seleccionado: <strong>{{ form.asiento }}</strong>
+            </p>
           </div>
 
           <div class="modal-actions">
             <button type="button" class="btn btn--secondary" @click="cerrarModal">Cancelar</button>
-            <button type="submit" class="btn btn--primary" :disabled="enviando">
+            <button type="submit" class="btn btn--primary" :disabled="enviando || !form.asiento">
               {{ enviando ? 'Creando...' : 'Reservar' }}
             </button>
           </div>
@@ -96,9 +139,16 @@ const usuario = ref(null)
 const modalAbierto = ref(false)
 const rutas = ref([])
 const cargandoRutas = ref(false)
+const cargandoAsientos = ref(false)
 const enviando = ref(false)
 const exito = ref(false)
 const error = ref('')
+const asientoConfirmado = ref(null)
+
+// Asientos
+const capacidad = ref(0)
+const ocupados = ref([])
+const disponibles = computed(() => capacidad.value - ocupados.value.length)
 
 const hoy = new Date().toISOString().split('T')[0]
 
@@ -106,7 +156,8 @@ const form = reactive({
   nombre: '',
   apellido: '',
   rutaId: '',
-  fecha: hoy
+  fecha: hoy,
+  asiento: null,
 })
 
 onMounted(async () => {
@@ -123,6 +174,28 @@ onMounted(async () => {
     router.push('/login')
   }
 })
+
+const cargarAsientos = async () => {
+  if (!form.rutaId || !form.fecha) return
+  cargandoAsientos.value = true
+  form.asiento = null
+  try {
+    const data = await $fetch(`/api/pasajes/ruta/${form.rutaId}/asientos`, {
+      params: { fecha: form.fecha },
+      headers: { Authorization: `Bearer ${token.value}` }
+    })
+    console.log('Asientos data:', data)  // ← acá
+    capacidad.value = data.capacidad
+    ocupados.value = data.ocupados
+  } catch {
+    error.value = 'No se pudieron cargar los asientos.'
+  } finally {
+    cargandoAsientos.value = false
+  }
+}
+
+const onRutaChange = () => cargarAsientos()
+const onFechaChange = () => cargarAsientos()
 
 const abrirModal = async () => {
   exito.value = false
@@ -148,10 +221,16 @@ const cerrarModal = () => {
   modalAbierto.value = false
   exito.value = false
   error.value = ''
-  Object.assign(form, { nombre: '', apellido: '', rutaId: '', fecha: hoy })
+  capacidad.value = 0
+  ocupados.value = []
+  Object.assign(form, { nombre: '', apellido: '', rutaId: '', fecha: hoy, asiento: null })
 }
 
 const crearPasaje = async () => {
+  if (!form.asiento) {
+    error.value = 'Debes seleccionar un asiento.'
+    return
+  }
   enviando.value = true
   error.value = ''
   exito.value = false
@@ -163,13 +242,18 @@ const crearPasaje = async () => {
         nombre: form.nombre,
         apellido: form.apellido || null,
         rutaId: form.rutaId,
-        fecha: form.fecha
+        fecha: form.fecha,
+        asiento: form.asiento,
       }
     })
+    asientoConfirmado.value = form.asiento
     exito.value = true
-    Object.assign(form, { nombre: '', apellido: '', rutaId: '', fecha: hoy })
+    await cargarAsientos()
+    Object.assign(form, { nombre: '', apellido: '', asiento: null })
   } catch (e) {
-    error.value = e?.data?.message ?? 'Ocurrió un error al crear el pasaje.'
+    error.value = e?.data?.message
+      ?? e?.response?._data?.message
+      ?? 'Ocurrió un error al crear el pasaje.'
   } finally {
     enviando.value = false
   }
