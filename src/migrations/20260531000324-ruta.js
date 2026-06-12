@@ -15,8 +15,16 @@ module.exports = {
         autoIncrement: true,
         primaryKey: true,
       },
-      Nombre: {
+      origen: {
         type: Sequelize.STRING,
+        allowNull: false,
+      },
+      destino: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      fecha: {
+        type: Sequelize.DATETIME,
         allowNull: false,
       },
       precio: {

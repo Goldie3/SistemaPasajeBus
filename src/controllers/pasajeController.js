@@ -35,20 +35,13 @@ exports.getPasajeById = async (req, res) => {
 exports.getAsientosOcupados = async (req, res) => {
   try {
     const { rutaId } = req.params;
-    const { fecha } = req.query;
+
 
     const ruta = await Ruta.findByPk(rutaId);
     if (!ruta) return res.status(404).json({ message: 'Ruta no encontrada' });
 
     const where = { rutaId };
 
-    if (fecha) {
-      const inicioDia = new Date(fecha);
-      inicioDia.setHours(0, 0, 0, 0);
-      const finDia = new Date(fecha);
-      finDia.setHours(23, 59, 59, 999);
-      where.fecha = { [Op.between]: [inicioDia, finDia] };
-    }
 
     const pasajes = await Pasaje.findAll({ where, attributes: ['asiento'] });
     const ocupados = pasajes.map(p => p.asiento);
@@ -65,10 +58,10 @@ exports.getAsientosOcupados = async (req, res) => {
 
 exports.createPasaje = async (req, res) => {
   try {
-    const { nombre, apellido, rutaId, fecha, asiento } = req.body;
+    const { nombre, apellido, rutaId, asiento } = req.body;
 
-    if (!nombre || !rutaId || !fecha || !asiento) {
-      return res.status(400).json({ message: 'nombre, rutaId, fecha y asiento son requeridos' });
+    if (!nombre || !rutaId || !asiento) {
+      return res.status(400).json({ message: 'nombre, rutaId y asiento son requeridos' });
     }
 
     const ruta = await Ruta.findByPk(rutaId);
@@ -79,12 +72,6 @@ exports.createPasaje = async (req, res) => {
         message: `El asiento debe estar entre 1 y ${ruta.capacidad}`,
       });
     }
-
-    // Buscar por rango del día completo para evitar problemas con DATETIME
-    const inicioDia = new Date(fecha);
-    inicioDia.setHours(0, 0, 0, 0);
-    const finDia = new Date(fecha);
-    finDia.setHours(23, 59, 59, 999);
 
     const ocupado = await Pasaje.findOne({
       where: {
@@ -104,7 +91,6 @@ exports.createPasaje = async (req, res) => {
       nombre,
       apellido: apellido || null,
       rutaId,
-      fecha,
       asiento,
     });
 
@@ -121,11 +107,10 @@ exports.updatePasaje = async (req, res) => {
 
     if (!pasaje) return res.status(404).json({ message: 'Pasaje no encontrado' });
 
-    const { nombre, apellido, rutaId, fecha, asiento } = req.body;
+    const { nombre, apellido, rutaId, asiento } = req.body;
 
-    if (asiento !== undefined || rutaId !== undefined || fecha !== undefined) {
+    if (asiento !== undefined || rutaId !== undefined) {
       const rutaFinal    = rutaId   ?? pasaje.rutaId;
-      const fechaFinal   = fecha    ?? pasaje.fecha;
       const asientoFinal = asiento  ?? pasaje.asiento;
 
       const ruta = await Ruta.findByPk(rutaFinal);

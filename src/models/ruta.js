@@ -7,8 +7,16 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true,
       primaryKey: true,
     },
-    Nombre: {
+    destino: {
       type: DataTypes.STRING,
+      allowNull: false,
+    },
+    origen: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    fecha: {
+      type: DataTypes.DATETIME,
       allowNull: false,
     },
     precio: {

@@ -24,7 +24,10 @@
           <h3>Pasajes</h3>
           <p>Gestiona los pasajes de los pasajeros</p>
         </NuxtLink>
-
+        <NuxtLink to="/busquedarutas" class="card">
+          <h3>🛣️ Buscar Rutas</h3>
+          <p>Encuentra rutas disponibles para viajar</p>
+        </NuxtLink>
         <div class="card card--action" @click="abrirModal">
           <h3>✈ Nuevo Viaje</h3>
           <p>Reserva un pasaje eligiendo una ruta</p>
@@ -82,18 +85,10 @@
             </label>
 
             <div v-if="!cargandoAsientos" class="asientos-grid">
-              <button
-                v-for="n in capacidad"
-                :key="n"
-                type="button"
-                class="asiento"
-                :class="{
-                  'asiento--ocupado': ocupados.includes(n),
-                  'asiento--seleccionado': form.asiento === n,
-                }"
-                :disabled="ocupados.includes(n)"
-                @click="form.asiento = n"
-              >
+              <button v-for="n in capacidad" :key="n" type="button" class="asiento" :class="{
+                'asiento--ocupado': ocupados.includes(n),
+                'asiento--seleccionado': form.asiento === n,
+              }" :disabled="ocupados.includes(n)" @click="form.asiento = n">
                 {{ n }}
               </button>
             </div>
