@@ -89,14 +89,15 @@
 import '~/assets/rutas.css'
 definePageMeta({ middleware: 'auth' })
 
+const token   = useCookie('auth_token')
+const router  = useRouter()
+const headers = computed(() => ({ Authorization: `Bearer ${token.value}` }))
+
 const rutas    = ref([])
 const form     = reactive({ origen: '', destino: '', fecha: '', precio: '', capacidad: '' })
 const editando = ref(null)
 const loading  = ref(false)
 const error    = ref('')
-
-const token   = useCookie('auth_token')
-const headers = computed(() => ({ Authorization: `Bearer ${token.value}` }))
 
 const formatearFechaHora = (f) => f
   ? new Date(f).toLocaleString('es-CL', { dateStyle: 'medium', timeStyle: 'short' })
@@ -125,12 +126,12 @@ const guardar = async () => {
 }
 
 const editar = (ruta) => {
-  editando.value   = ruta.id
-  form.origen      = ruta.origen
-  form.destino     = ruta.destino
-  form.fecha       = ruta.fecha ? ruta.fecha.slice(0, 16) : ''
-  form.precio      = ruta.precio
-  form.capacidad   = ruta.capacidad
+  editando.value = ruta.id
+  form.origen    = ruta.origen
+  form.destino   = ruta.destino
+  form.fecha     = ruta.fecha ? ruta.fecha.slice(0, 16) : ''
+  form.precio    = ruta.precio
+  form.capacidad = ruta.capacidad
 }
 
 const cancelar = () => {
@@ -148,5 +149,17 @@ const eliminar = async (id) => {
   }
 }
 
-onMounted(cargar)
+onMounted(async () => {
+  try {
+    const data = await $fetch('/api/auth/me', { headers: headers.value })
+    if (data.data?.rol !== 'admin') {
+      router.push('/principal')
+      return
+    }
+  } catch {
+    router.push('/login')
+    return
+  }
+  await cargar()
+})
 </script>

@@ -30,6 +30,11 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: false,
       },
+      rol: {
+        type: Sequelize.ENUM('user', 'admin'),
+        allowNull: false,
+        defaultValue: 'user',
+      },
     });
 
   },

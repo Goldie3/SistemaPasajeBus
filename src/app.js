@@ -1,22 +1,23 @@
 require('dotenv').config();
 const express = require('express');
+const cors = require('cors');                              
+const errorHandler = require('./middleware/errorHandler');
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 4000;
 
-// Middlewares
+app.use(cors({                                            
+  origin: 'http://localhost:3000',
+  credentials: true,
+}));                                                     
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Rutas
 const routes = require('./routes/index');
 app.use('/', routes);
 
-// Ruta de prueba
-app.get('/', (req, res) => {
-  res.json({ message: '¡API funcionando!' });
-});
+app.use(errorHandler);
 
-// Iniciar servidor
 app.listen(port, () => {
-  console.log(`Servidor corriendo en http://localhost:${port}`);
+  console.log(`Servidor corriendo en http://localhost:3000`);
 });

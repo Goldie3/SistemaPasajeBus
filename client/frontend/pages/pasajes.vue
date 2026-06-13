@@ -12,6 +12,16 @@
       <form @submit.prevent="guardar">
 
         <div class="field">
+          <label>Usuario</label>
+          <select v-model="form.usuarioId" :disabled="loading">
+            <option value="">Sin asignar</option>
+            <option v-for="u in usuarios" :key="u.id" :value="u.id">
+              {{ u.nombre }} — {{ u.email }}
+            </option>
+          </select>
+        </div>
+
+        <div class="field">
           <label>Nombre</label>
           <input v-model="form.nombre" placeholder="Nombre del pasajero" :disabled="loading" />
         </div>
@@ -68,6 +78,7 @@
         <thead>
           <tr>
             <th>ID</th>
+            <th>Usuario</th>
             <th>Nombre</th>
             <th>Apellido</th>
             <th>Ruta</th>
@@ -80,16 +91,18 @@
         <tbody>
           <tr v-for="pasaje in pasajes" :key="pasaje.id">
             <td>{{ pasaje.id }}</td>
+            <td>
+              <span v-if="pasaje.usuario">{{ pasaje.usuario.email }}</span>
+              <span v-else style="color:#9ca3af;">—</span>
+            </td>
             <td>{{ pasaje.nombre }}</td>
             <td>{{ pasaje.apellido ?? '—' }}</td>
             <td>
-              <span v-if="pasaje.ruta">
-                {{ pasaje.ruta.origen }} → {{ pasaje.ruta.destino }}
-              </span>
+              <span v-if="pasaje.ruta">{{ pasaje.ruta.origen }} → {{ pasaje.ruta.destino }}</span>
               <span v-else>—</span>
             </td>
             <td>{{ pasaje.ruta ? formatearFechaHora(pasaje.ruta.fecha) : '—' }}</td>
-            <td>${{ pasaje.ruta ? Number(pasaje.ruta.precio).toLocaleString('es-CL') : '—' }}</td>
+            <td>{{ pasaje.ruta ? `$${Number(pasaje.ruta.precio).toLocaleString('es-CL')}` : '—' }}</td>
             <td>{{ pasaje.asiento }}</td>
             <td class="actions">
               <button class="btn-edit" @click="editar(pasaje)">Editar</button>
@@ -107,15 +120,17 @@
 import '~/assets/pasajes.css'
 definePageMeta({ middleware: 'auth' })
 
+const token   = useCookie('auth_token')
+const router  = useRouter()
+const headers = computed(() => ({ Authorization: `Bearer ${token.value}` }))
+
 const pasajes  = ref([])
 const rutas    = ref([])
-const form     = reactive({ nombre: '', apellido: '', rutaId: '', asiento: '' })
+const usuarios = ref([])
+const form     = reactive({ usuarioId: '', nombre: '', apellido: '', rutaId: '', asiento: '' })
 const editando = ref(null)
 const loading  = ref(false)
 const error    = ref('')
-
-const token   = useCookie('auth_token')
-const headers = computed(() => ({ Authorization: `Bearer ${token.value}` }))
 
 const rutaActual = computed(() =>
   rutas.value.find(r => r.id === form.rutaId) ?? null
@@ -126,27 +141,28 @@ const formatearFechaHora = (f) => f
   : '—'
 
 const cargar = async () => {
-  const [p, r] = await Promise.all([
+  const [p, r, u] = await Promise.all([
     $fetch('/api/pasajes/admin', { headers: headers.value }),
-    $fetch('/api/rutas',   { headers: headers.value }),
+    $fetch('/api/rutas',               { headers: headers.value }),
+    $fetch('/api/auth/usuarios',       { headers: headers.value }),
   ])
-  pasajes.value = Array.isArray(p) ? p : (p.data ?? [])
-  rutas.value   = Array.isArray(r) ? r : (r.data ?? [])
+  pasajes.value  = Array.isArray(p) ? p : (p.data ?? [])
+  rutas.value    = Array.isArray(r) ? r : (r.data ?? [])
+  usuarios.value = Array.isArray(u) ? u : (u.data ?? [])
 }
 
-const onRutaChange = () => {
-  form.asiento = ''
-}
+const onRutaChange = () => { form.asiento = '' }
 
 const guardar = async () => {
   loading.value = true
   error.value   = ''
   try {
     const body = {
-      nombre:   form.nombre,
-      apellido: form.apellido || null,
-      rutaId:   form.rutaId,
-      asiento:  form.asiento,
+      usuarioId: form.usuarioId || null,
+      nombre:    form.nombre,
+      apellido:  form.apellido || null,
+      rutaId:    form.rutaId,
+      asiento:   form.asiento,
     }
     if (editando.value) {
       await $fetch(`/api/pasajes/${editando.value}`, { method: 'PUT', headers: headers.value, body })
@@ -163,16 +179,17 @@ const guardar = async () => {
 }
 
 const editar = (pasaje) => {
-  editando.value  = pasaje.id
-  form.nombre     = pasaje.nombre
-  form.apellido   = pasaje.apellido ?? ''
-  form.rutaId     = pasaje.rutaId
-  form.asiento    = pasaje.asiento
+  editando.value    = pasaje.id
+  form.usuarioId    = pasaje.usuarioId ?? ''
+  form.nombre       = pasaje.nombre
+  form.apellido     = pasaje.apellido ?? ''
+  form.rutaId       = pasaje.rutaId
+  form.asiento      = pasaje.asiento
 }
 
 const cancelar = () => {
   editando.value = null
-  Object.assign(form, { nombre: '', apellido: '', rutaId: '', asiento: '' })
+  Object.assign(form, { usuarioId: '', nombre: '', apellido: '', rutaId: '', asiento: '' })
 }
 
 const eliminar = async (id) => {
@@ -185,5 +202,17 @@ const eliminar = async (id) => {
   }
 }
 
-onMounted(cargar)
+onMounted(async () => {
+  try {
+    const data = await $fetch('/api/auth/me', { headers: headers.value })
+    if (data.data?.rol !== 'admin') {
+      router.push('/principal')
+      return
+    }
+  } catch {
+    router.push('/login')
+    return
+  }
+  await cargar()
+})
 </script>

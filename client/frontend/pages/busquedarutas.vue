@@ -5,9 +5,11 @@
     <nav class="busqueda-nav">
       <h1>🚌 BusExpress</h1>
       <div class="nav-links">
+        <template v-if="usuario?.rol === 'admin'">
+          <NuxtLink to="/rutas">Rutas</NuxtLink>
+          <NuxtLink to="/pasajes">Pasajes</NuxtLink>
+        </template>
         <NuxtLink to="/principal">Inicio</NuxtLink>
-        <NuxtLink to="/rutas">Rutas</NuxtLink>
-        <NuxtLink to="/pasajes">Pasajes</NuxtLink>
         <button @click="cerrarSesion">Cerrar sesión</button>
       </div>
     </nav>
@@ -79,19 +81,16 @@
         <div class="rutas-grid">
           <div v-for="ruta in rutasFiltradas" :key="ruta.id" class="ruta-card">
 
-            <!-- Encabezado de la card -->
             <div class="ruta-ruta">
               <span class="ruta-lugar">{{ ruta.origen }}</span>
               <span class="ruta-flecha">→</span>
               <span class="ruta-lugar">{{ ruta.destino }}</span>
             </div>
 
-            <!-- Badge de reserva activa -->
             <div v-if="misReservas[ruta.id]">
               <span class="badge-reserva">✓ Tienes el asiento {{ misReservas[ruta.id].asiento }}</span>
             </div>
 
-            <!-- Detalles -->
             <div class="ruta-info">
               <div class="info-item">
                 <span class="info-label">Fecha</span>
@@ -111,7 +110,6 @@
               </div>
             </div>
 
-            <!-- Footer -->
             <div class="ruta-footer">
               <div class="ruta-precio">
                 ${{ Number(ruta.precio).toLocaleString('es-CL') }}
@@ -119,9 +117,7 @@
               </div>
             </div>
 
-            <!-- Acciones -->
             <div class="card-acciones">
-              <!-- Sin reserva: mostrar botón reservar -->
               <button
                 v-if="!misReservas[ruta.id]"
                 class="btn-reservar"
@@ -131,7 +127,6 @@
                 {{ rutaPasada(ruta.fecha) ? 'Ruta finalizada' : 'Reservar pasaje' }}
               </button>
 
-              <!-- Con reserva: mostrar botón cancelar -->
               <button
                 v-else
                 class="btn-cancelar-reserva"
@@ -154,7 +149,6 @@
         <button class="modal-close" @click="cerrarModalReserva">✕</button>
         <h3>✈ Reservar Viaje</h3>
 
-        <!-- Ruta seleccionada -->
         <p style="margin: 0 0 1rem; color: #6b7280; font-size: 0.9rem;">
           <strong style="color: #0d47a1;">{{ rutaSeleccionada?.origen }}</strong>
           → <strong style="color: #0d47a1;">{{ rutaSeleccionada?.destino }}</strong>
@@ -177,7 +171,6 @@
             <input v-model="formReserva.apellido" type="text" placeholder="Tu apellido" />
           </div>
 
-          <!-- Mapa de asientos -->
           <div class="field">
             <label>
               Asiento *
@@ -259,13 +252,11 @@
         </div>
 
         <template v-else>
-          <!-- No se puede cancelar: ruta ya salió -->
           <div v-if="cancelacion.bloqueada" class="alert alert--error">
             ⛔ No es posible cancelar: el bus ya salió o está a punto de hacerlo.
           </div>
 
           <template v-else>
-            <!-- Resumen de devolución -->
             <div class="cancelacion-resumen">
               <div class="cancelacion-fila">
                 <span>Asiento reservado</span>
@@ -326,24 +317,35 @@ import '~/assets/busquedarutas.css'
 
 definePageMeta({ middleware: 'auth' })
 
+const API     = 'http://localhost:4000'
 const router  = useRouter()
 const token   = useCookie('auth_token')
 const headers = computed(() => ({ Authorization: `Bearer ${token.value}` }))
+const usuario = ref(null)
 
+// Cargar usuario para mostrar links de admin
+onMounted(async () => {
+  try {
+    const data = await $fetch(`${API}/auth/me`, { headers: headers.value })
+    usuario.value = data.data
+  } catch {
+    router.push('/login')
+  }
+})
 
+// ── FILTROS ───────────────────────────────────────────────────────────────────
 
-const filtros  = reactive({ origen: '', destino: '', fecha: '' })
+const filtros    = reactive({ origen: '', destino: '', fecha: '' })
 const hayFiltros = computed(() =>
   filtros.origen.trim() || filtros.destino.trim() || filtros.fecha
 )
 
+// ── ESTADO ────────────────────────────────────────────────────────────────────
 
-
-const estado       = ref('inicial')
-const mensajeError = ref('')
-const cargando     = ref(false)
+const estado        = ref('inicial')
+const mensajeError  = ref('')
+const cargando      = ref(false)
 const todasLasRutas = ref([])
-
 
 const rutasFiltradas = computed(() => {
   let resultado = todasLasRutas.value
@@ -358,37 +360,34 @@ const rutasFiltradas = computed(() => {
   return resultado
 })
 
+// ── MIS RESERVAS ──────────────────────────────────────────────────────────────
 
 const misReservas = ref({})
 
 const cargarMisReservas = async (rutas) => {
   if (!rutas.length) return
   try {
-    const pasajes = await $fetch('/api/pasajes', { headers: headers.value })
+    const pasajes = await $fetch(`${API}/pasajes`, { headers: headers.value })
     const mapa = {}
     for (const p of (Array.isArray(pasajes) ? pasajes : pasajes.data ?? [])) {
       mapa[p.rutaId] = p
     }
     misReservas.value = mapa
-  } catch {
-
-  }
+  } catch {}
 }
 
-
+// ── BUSCAR ────────────────────────────────────────────────────────────────────
 
 const buscar = async () => {
   if (!hayFiltros.value) return
-  cargando.value  = true
-  estado.value    = 'cargando'
+  cargando.value     = true
+  estado.value       = 'cargando'
   mensajeError.value = ''
 
   try {
-    const data = await $fetch('/api/rutas', { headers: headers.value })
+    const data = await $fetch(`${API}/rutas`, { headers: headers.value })
     todasLasRutas.value = Array.isArray(data) ? data : (data.data ?? [])
-
     await cargarMisReservas(todasLasRutas.value)
-
     estado.value = rutasFiltradas.value.length > 0 ? 'resultados' : 'vacio'
   } catch (err) {
     mensajeError.value = err?.data?.message || 'No se pudo conectar con el servidor.'
@@ -399,14 +398,15 @@ const buscar = async () => {
 }
 
 const limpiar = () => {
-  filtros.origen  = ''
-  filtros.destino = ''
-  filtros.fecha   = ''
+  filtros.origen      = ''
+  filtros.destino     = ''
+  filtros.fecha       = ''
   todasLasRutas.value = []
   misReservas.value   = {}
-  estado.value = 'inicial'
+  estado.value        = 'inicial'
 }
 
+// ── HELPERS ───────────────────────────────────────────────────────────────────
 
 const formatearFecha = (f) => f
   ? new Date(f).toLocaleDateString('es-CL', { day: '2-digit', month: 'long', year: 'numeric' })
@@ -416,64 +416,33 @@ const formatearHora = (f) => f
   ? new Date(f).toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })
   : '—'
 
-
 const rutaPasada = (fecha) => fecha ? new Date(fecha) < new Date() : false
 
-const calcularDevolucion = (fechaRuta, precio) => {
-  const ahora      = new Date()
-  const salida     = new Date(fechaRuta)
-  const diffMs     = salida - ahora
-  const diffHoras  = diffMs / (1000 * 60 * 60)
+// ── POLÍTICA DE DEVOLUCIÓN ────────────────────────────────────────────────────
 
-  // Ya salió → sin devolución ni cancelación
-  if (diffHoras <= 0) {
-    return {
-      bloqueada: true,
-      porcentaje: 0,
-      politica: 'Sin devolución',
-      advertencia: '',
-      badgeColor: 'rojo',
-      montoDevolucion: 0,
-    }
+const calcularDevolucion = (fechaRuta, precio) => {
+  const diffHoras = (new Date(fechaRuta) - new Date()) / (1000 * 60 * 60)
+
+  if (diffHoras <= 0 || diffHoras < 2) {
+    return { bloqueada: true, porcentaje: 0, politica: 'Sin devolución', advertencia: '', badgeColor: 'rojo', montoDevolucion: 0 }
   }
 
   let porcentaje, politica, advertencia, badgeColor
 
   if (diffHoras >= 48) {
-    porcentaje  = 100
-    politica    = 'Devolución total'
-    advertencia = ''
-    badgeColor  = 'verde'
+    porcentaje = 100; politica = 'Devolución total'; advertencia = ''; badgeColor = 'verde'
   } else if (diffHoras >= 24) {
-    porcentaje  = 75
-    politica    = 'Devolución parcial 75%'
-    advertencia = 'Cancelas con menos de 48 h de antelación; se retiene el 25%.'
-    badgeColor  = 'verde'
+    porcentaje = 75; politica = 'Devolución parcial 75%'; advertencia = 'Cancelas con menos de 48 h de antelación; se retiene el 25%.'; badgeColor = 'verde'
   } else if (diffHoras >= 6) {
-    porcentaje  = 50
-    politica    = 'Devolución parcial 50%'
-    advertencia = 'Cancelas con menos de 24 h de antelación; se retiene el 50%.'
-    badgeColor  = 'amarillo'
-  } else if (diffHoras >= 2) {
-    porcentaje  = 20
-    politica    = 'Devolución mínima 20%'
-    advertencia = 'Cancelas con menos de 6 h de antelación; se retiene el 80%.'
-    badgeColor  = 'rojo'
+    porcentaje = 50; politica = 'Devolución parcial 50%'; advertencia = 'Cancelas con menos de 24 h de antelación; se retiene el 50%.'; badgeColor = 'amarillo'
   } else {
-    return {
-      bloqueada: true,
-      porcentaje: 0,
-      politica: 'Sin devolución',
-      advertencia: '',
-      badgeColor: 'rojo',
-      montoDevolucion: 0,
-    }
+    porcentaje = 20; politica = 'Devolución mínima 20%'; advertencia = 'Cancelas con menos de 6 h de antelación; se retiene el 80%.'; badgeColor = 'rojo'
   }
 
-  const montoDevolucion = Math.round(precio * porcentaje / 100)
-  return { bloqueada: false, porcentaje, politica, advertencia, badgeColor, montoDevolucion }
+  return { bloqueada: false, porcentaje, politica, advertencia, badgeColor, montoDevolucion: Math.round(precio * porcentaje / 100) }
 }
 
+// ── MODAL RESERVA ─────────────────────────────────────────────────────────────
 
 const modalReserva      = ref(false)
 const rutaSeleccionada  = ref(null)
@@ -492,18 +461,16 @@ const asientosDisponibles = computed(() =>
 
 const abrirModalReserva = async (ruta) => {
   rutaSeleccionada.value = ruta
-  formReserva.nombre  = ''
-  formReserva.apellido = ''
-  formReserva.asiento = null
-  exitoReserva.value  = false
-  errorReserva.value  = ''
-  modalReserva.value  = true
+  formReserva.nombre     = ''
+  formReserva.apellido   = ''
+  formReserva.asiento    = null
+  exitoReserva.value     = false
+  errorReserva.value     = ''
+  modalReserva.value     = true
 
   cargandoAsientos.value = true
   try {
-    const data = await $fetch(`/api/pasajes/ruta/${ruta.id}/asientos`, {
-      headers: headers.value,
-    })
+    const data = await $fetch(`${API}/pasajes/ruta/${ruta.id}/asientos`, { headers: headers.value })
     asientosOcupados.value = data.ocupados ?? []
     miAsientoEnRuta.value  = data.miAsiento ?? null
   } catch {
@@ -514,18 +481,16 @@ const abrirModalReserva = async (ruta) => {
 }
 
 const cerrarModalReserva = () => {
-  modalReserva.value = false
+  modalReserva.value     = false
   rutaSeleccionada.value = null
 }
 
 const confirmarReserva = async () => {
   if (!formReserva.nombre || !formReserva.asiento) return
-
   enviandoReserva.value = true
   errorReserva.value    = ''
-
   try {
-    await $fetch('/api/pasajes', {
+    await $fetch(`${API}/pasajes`, {
       method: 'POST',
       headers: headers.value,
       body: {
@@ -535,44 +500,32 @@ const confirmarReserva = async () => {
         asiento:  formReserva.asiento,
       },
     })
-
     asientoConfirmado.value = formReserva.asiento
     exitoReserva.value      = true
-
-
     await cargarMisReservas(todasLasRutas.value)
   } catch (err) {
-    errorReserva.value =
-      err?.data?.message ?? err?.response?._data?.message ?? 'Error al crear el pasaje.'
+    errorReserva.value = err?.data?.message ?? 'Error al crear el pasaje.'
   } finally {
     enviandoReserva.value = false
   }
 }
+
+// ── MODAL CANCELACIÓN ─────────────────────────────────────────────────────────
 
 const modalCancelacion    = ref(false)
 const enviandoCancelacion = ref(false)
 const exitoCancelacion    = ref(false)
 const errorCancelacion    = ref('')
 const devolucionMonto     = ref(0)
-
-
-const cancelacion = ref({
-  bloqueada: false,
-  porcentaje: 0,
-  politica: '',
-  advertencia: '',
-  badgeColor: 'verde',
-  montoDevolucion: 0,
-})
+const cancelacion         = ref({ bloqueada: false, porcentaje: 0, politica: '', advertencia: '', badgeColor: 'verde', montoDevolucion: 0 })
 
 const abrirModalCancelacion = (ruta) => {
-  rutaSeleccionada.value  = ruta
-  exitoCancelacion.value  = false
-  errorCancelacion.value  = ''
+  rutaSeleccionada.value    = ruta
+  exitoCancelacion.value    = false
+  errorCancelacion.value    = ''
   enviandoCancelacion.value = false
-
-  cancelacion.value = calcularDevolucion(ruta.fecha, ruta.precio)
-  modalCancelacion.value = true
+  cancelacion.value         = calcularDevolucion(ruta.fecha, ruta.precio)
+  modalCancelacion.value    = true
 }
 
 const cerrarModalCancelacion = () => {
@@ -583,29 +536,23 @@ const cerrarModalCancelacion = () => {
 const confirmarCancelacion = async () => {
   const pasaje = misReservas.value[rutaSeleccionada.value.id]
   if (!pasaje) return
-
   enviandoCancelacion.value = true
   errorCancelacion.value    = ''
-
   try {
-    await $fetch(`/api/pasajes/${pasaje.id}`, {
-      method: 'DELETE',
-      headers: headers.value,
-    })
-
+    await $fetch(`${API}/pasajes/${pasaje.id}`, { method: 'DELETE', headers: headers.value })
     devolucionMonto.value  = cancelacion.value.montoDevolucion
     exitoCancelacion.value = true
-
     const nuevas = { ...misReservas.value }
     delete nuevas[rutaSeleccionada.value.id]
     misReservas.value = nuevas
   } catch (err) {
-    errorCancelacion.value =
-      err?.data?.message ?? 'No se pudo cancelar la reserva.'
+    errorCancelacion.value = err?.data?.message ?? 'No se pudo cancelar la reserva.'
   } finally {
     enviandoCancelacion.value = false
   }
 }
+
+// ── SESIÓN ────────────────────────────────────────────────────────────────────
 
 const cerrarSesion = () => {
   token.value = null

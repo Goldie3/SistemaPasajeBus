@@ -26,4 +26,12 @@ const authenticate = async (req, res, next) => {
   }
 };
 
-module.exports = { authenticate };
+// Debe ir siempre después de authenticate
+const isAdmin = (req, res, next) => {
+  if (req.usuario?.rol !== 'admin') {
+    return next(new AppError('Acceso restringido a administradores', 403));
+  }
+  next();
+};
+
+module.exports = { authenticate, isAdmin };

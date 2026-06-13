@@ -25,6 +25,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING(120),
         allowNull: false,
       },
+      rol: {
+        type: DataTypes.ENUM('user', 'admin'),
+        allowNull: false,
+        defaultValue: 'user',
+      },
     },
     {
       tableName: 'usuarios',
@@ -57,6 +62,7 @@ module.exports = (sequelize, DataTypes) => {
       id: this.id,
       email: this.email,
       nombre: this.nombre,
+      rol: this.rol,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
     };
