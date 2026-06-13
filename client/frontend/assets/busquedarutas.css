@@ -1,0 +1,678 @@
+/* ===== BUSQUEDA DE RUTAS ===== */
+
+.busqueda-container {
+  min-height: 100vh;
+  background: #f4f7fb;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ===== NAVBAR ===== */
+
+.busqueda-nav {
+  background: #0d47a1;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+}
+
+.busqueda-nav h1 {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+.busqueda-nav .nav-links {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.busqueda-nav .nav-links a {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.busqueda-nav .nav-links a:hover {
+  text-decoration: underline;
+}
+
+.busqueda-nav .nav-links button {
+  border: none;
+  background: #ef4444;
+  color: white;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.busqueda-nav .nav-links button:hover {
+  background: #dc2626;
+}
+
+/* ===== CONTENIDO PRINCIPAL ===== */
+
+.busqueda-main {
+  padding: 2rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.busqueda-header {
+  margin-bottom: 2rem;
+}
+
+.busqueda-header h2 {
+  margin: 0;
+  color: #0d47a1;
+  font-size: 1.6rem;
+}
+
+.busqueda-header p {
+  color: #6b7280;
+  margin-top: 0.4rem;
+}
+
+/* ===== CARD DE FILTROS ===== */
+
+.filtros-card {
+  background: white;
+  border-radius: 15px;
+  padding: 1.75rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.filtros-card h3 {
+  margin: 0 0 1.25rem;
+  color: #0d47a1;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.filtros-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+  gap: 1rem;
+  align-items: end;
+}
+
+@media (max-width: 768px) {
+  .filtros-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.filtro-field label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.9rem;
+}
+
+.filtro-field input {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+  transition: 0.2s;
+  color: #1f2937;
+}
+
+.filtro-field input:focus {
+  outline: none;
+  border-color: #1976d2;
+  box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.12);
+}
+
+.filtro-field input::placeholder {
+  color: #9ca3af;
+}
+
+.btn-buscar {
+  background: #1976d2;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 11px 24px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+  white-space: nowrap;
+  height: 44px;
+}
+
+.btn-buscar:hover:not(:disabled) {
+  background: #1565c0;
+}
+
+.btn-buscar:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.btn-limpiar {
+  background: none;
+  border: none;
+  color: #6b7280;
+  font-size: 0.85rem;
+  cursor: pointer;
+  margin-top: 0.75rem;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.btn-limpiar:hover {
+  color: #374151;
+}
+
+/* ===== ESTADOS ===== */
+
+.estado-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  color: #6b7280;
+}
+
+.estado-icono {
+  font-size: 3.5rem;
+  margin-bottom: 1rem;
+}
+
+.estado-wrapper h3 {
+  margin: 0 0 0.5rem;
+  color: #374151;
+  font-size: 1.1rem;
+}
+
+.estado-wrapper p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.estado-error h3 {
+  color: #dc2626;
+}
+
+/* ===== RESULTADOS ===== */
+
+.resultados-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.resultados-titulo {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #374151;
+}
+
+.badge-resultados {
+  background: #dbeafe;
+  color: #1e40af;
+  border-radius: 999px;
+  padding: 2px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.rutas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.25rem;
+}
+
+/* ===== TARJETA DE RUTA ===== */
+
+.ruta-card {
+  background: white;
+  border-radius: 14px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+  border: 1px solid #e5e7eb;
+  transition: box-shadow 0.2s, transform 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.ruta-card:hover {
+  box-shadow: 0 6px 24px rgba(13, 71, 161, 0.12);
+  transform: translateY(-2px);
+}
+
+.ruta-ruta {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.ruta-lugar {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1f2937;
+  flex: 1;
+}
+
+.ruta-flecha {
+  color: #1976d2;
+  font-size: 1.1rem;
+}
+
+.ruta-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.info-label {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.info-valor {
+  font-size: 0.95rem;
+  color: #374151;
+  font-weight: 500;
+}
+
+.ruta-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 0.75rem;
+  border-top: 1px solid #f3f4f6;
+}
+
+.ruta-precio {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #0d47a1;
+}
+
+.ruta-precio span {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #6b7280;
+}
+
+/* ===== BOTONES DE ACCION EN CARDS ===== */
+
+.card-acciones {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.btn-reservar {
+  flex: 1;
+  background: #1976d2;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-reservar:hover:not(:disabled) {
+  background: #1565c0;
+}
+
+.btn-reservar:disabled {
+  background: #d1d5db;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.btn-cancelar-reserva {
+  flex: 1;
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1.5px solid #fca5a5;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-cancelar-reserva:hover:not(:disabled) {
+  background: #fecaca;
+}
+
+/* ===== BADGE DE RESERVA ACTIVA ===== */
+
+.badge-reserva {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: #dcfce7;
+  color: #166534;
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+/* ===== MODAL (idéntico a principal.css) ===== */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modal {
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: white;
+  padding: 2rem;
+  border-radius: 15px;
+  position: relative;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+}
+
+.modal h3 {
+  margin-top: 0;
+  color: #0d47a1;
+}
+
+.modal-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+/* ===== FORMULARIO DEL MODAL ===== */
+
+.field {
+  margin-bottom: 1rem;
+}
+
+.field label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.opcional {
+  color: #9ca3af;
+  font-weight: normal;
+}
+
+.field input,
+.field select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 15px;
+  box-sizing: border-box;
+  transition: 0.3s;
+}
+
+.field input:focus,
+.field select:focus {
+  outline: none;
+  border-color: #1976d2;
+  box-shadow: 0 0 8px rgba(25, 118, 210, 0.2);
+}
+
+/* ===== BOTONES DEL MODAL ===== */
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.btn {
+  padding: 0.75rem 1.3rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.btn--primary {
+  background: #1976d2;
+  color: white;
+}
+
+.btn--primary:hover {
+  background: #1565c0;
+}
+
+.btn--secondary {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.btn--secondary:hover {
+  background: #d1d5db;
+}
+
+.btn--danger {
+  background: #ef4444;
+  color: white;
+}
+
+.btn--danger:hover {
+  background: #dc2626;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ===== ALERTAS ===== */
+
+.alert {
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.alert--success {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.alert--error {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.alert--warning {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+/* ===== ASIENTOS (igual a principal) ===== */
+
+.cargando-asientos {
+  font-weight: 400;
+  color: #9ca3af;
+  font-size: 0.8rem;
+  margin-left: 0.4rem;
+}
+
+.disponibles-badge {
+  font-weight: 400;
+  font-size: 0.78rem;
+  background: #dcfce7;
+  color: #166534;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  margin-left: 0.4rem;
+}
+
+.asientos-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+
+.asiento {
+  aspect-ratio: 1;
+  border: 1.5px solid #d1d5db;
+  border-radius: 6px;
+  background: #f9fafb;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s, transform 0.1s;
+  color: #374151;
+  padding: 0;
+}
+
+.asiento:hover:not(:disabled) {
+  background: #dbeafe;
+  border-color: #1976d2;
+  transform: scale(1.08);
+}
+
+.asiento--seleccionado {
+  background: #1976d2 !important;
+  border-color: #1565c0 !important;
+  color: #fff !important;
+}
+
+.asiento--ocupado {
+  background: #fee2e2 !important;
+  border-color: #fca5a5 !important;
+  color: #ef4444 !important;
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+
+.asiento--mio {
+  background: #dcfce7 !important;
+  border-color: #4ade80 !important;
+  color: #166534 !important;
+  cursor: default;
+}
+
+.asiento-seleccionado-txt {
+  margin: 0.5rem 0 0;
+  font-size: 0.85rem;
+  color: #374151;
+}
+
+.leyenda {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.75rem;
+  font-size: 0.78rem;
+  color: #6b7280;
+  flex-wrap: wrap;
+}
+
+.leyenda-item {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.leyenda-color {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  border: 1.5px solid;
+}
+
+.leyenda-color--disponible   { background: #f9fafb;  border-color: #d1d5db; }
+.leyenda-color--ocupado      { background: #fee2e2;  border-color: #fca5a5; }
+.leyenda-color--seleccionado { background: #1976d2;  border-color: #1565c0; }
+.leyenda-color--mio          { background: #dcfce7;  border-color: #4ade80; }
+
+/* ===== RESUMEN DE CANCELACIÓN ===== */
+
+.cancelacion-resumen {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.cancelacion-fila {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  color: #374151;
+}
+
+.cancelacion-fila.total {
+  border-top: 1px solid #e5e7eb;
+  padding-top: 0.5rem;
+  margin-top: 0.25rem;
+  font-weight: 700;
+  font-size: 1rem;
+  color: #0d47a1;
+}
+
+.cancelacion-fila .monto-devolucion {
+  color: #059669;
+  font-weight: 700;
+}
+
+.politica-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.politica-badge--verde  { background: #dcfce7; color: #166534; }
+.politica-badge--amarillo { background: #fef3c7; color: #92400e; }
+.politica-badge--rojo   { background: #fee2e2; color: #991b1b; }

@@ -12,40 +12,35 @@
       <form @submit.prevent="guardar">
 
         <div class="field">
-          <label>Nombre de la Ruta</label>
-          <input
-            v-model="form.Nombre"
-            placeholder="Nombre de la ruta"
-            :disabled="loading"
-          />
+          <label>Origen</label>
+          <input v-model="form.origen" placeholder="Ciudad de origen" :disabled="loading" />
+        </div>
+
+        <div class="field">
+          <label>Destino</label>
+          <input v-model="form.destino" placeholder="Ciudad de destino" :disabled="loading" />
+        </div>
+
+        <div class="field">
+          <label>Fecha y hora de salida</label>
+          <input v-model="form.fecha" type="datetime-local" :disabled="loading" />
         </div>
 
         <div class="field">
           <label>Precio</label>
-          <input
-            v-model="form.precio"
-            type="number"
-            step="0.01"
-            placeholder="Precio"
-            :disabled="loading"
-          />
+          <input v-model="form.precio" type="number" step="0.01" placeholder="Precio en CLP" :disabled="loading" />
+        </div>
+
+        <div class="field">
+          <label>Capacidad (asientos)</label>
+          <input v-model="form.capacidad" type="number" min="1" placeholder="Nº de asientos" :disabled="loading" />
         </div>
 
         <div class="buttons">
-          <button
-            class="btn-primary"
-            type="submit"
-            :disabled="loading"
-          >
+          <button class="btn-primary" type="submit" :disabled="loading">
             {{ editando ? 'Actualizar' : 'Agregar' }}
           </button>
-
-          <button
-            v-if="editando"
-            class="btn-secondary"
-            type="button"
-            @click="cancelar"
-          >
+          <button v-if="editando" class="btn-secondary" type="button" @click="cancelar">
             Cancelar
           </button>
         </div>
@@ -62,38 +57,28 @@
         <thead>
           <tr>
             <th>ID</th>
-            <th>Nombre</th>
+            <th>Origen</th>
+            <th>Destino</th>
+            <th>Fecha y hora</th>
             <th>Precio</th>
             <th>Capacidad</th>
             <th>Acciones</th>
           </tr>
         </thead>
-
         <tbody>
           <tr v-for="ruta in rutas" :key="ruta.id">
             <td>{{ ruta.id }}</td>
-            <td>{{ ruta.Nombre }}</td>
-            <td>${{ ruta.precio }}</td>
+            <td>{{ ruta.origen }}</td>
+            <td>{{ ruta.destino }}</td>
+            <td>{{ formatearFechaHora(ruta.fecha) }}</td>
+            <td>${{ Number(ruta.precio).toLocaleString('es-CL') }}</td>
             <td>{{ ruta.capacidad }}</td>
-
             <td class="actions">
-              <button
-                class="btn-edit"
-                @click="editar(ruta)"
-              >
-                Editar
-              </button>
-
-              <button
-                class="btn-delete"
-                @click="eliminar(ruta.id)"
-              >
-                Eliminar
-              </button>
+              <button class="btn-edit" @click="editar(ruta)">Editar</button>
+              <button class="btn-delete" @click="eliminar(ruta.id)">Eliminar</button>
             </td>
           </tr>
         </tbody>
-
       </table>
     </div>
 
@@ -103,17 +88,19 @@
 <script setup>
 import '~/assets/rutas.css'
 definePageMeta({ middleware: 'auth' })
-const rutas = ref([])
-const form = reactive({ Nombre: '', precio: '', capacidad: '' })
+
+const rutas    = ref([])
+const form     = reactive({ origen: '', destino: '', fecha: '', precio: '', capacidad: '' })
 const editando = ref(null)
-const loading = ref(false)
-const error = ref('')
+const loading  = ref(false)
+const error    = ref('')
 
-const token = useCookie('auth_token')
+const token   = useCookie('auth_token')
+const headers = computed(() => ({ Authorization: `Bearer ${token.value}` }))
 
-const headers = computed(() => ({
-  Authorization: `Bearer ${token.value}`
-}))
+const formatearFechaHora = (f) => f
+  ? new Date(f).toLocaleString('es-CL', { dateStyle: 'medium', timeStyle: 'short' })
+  : '—'
 
 const cargar = async () => {
   rutas.value = await $fetch('/api/rutas', { headers: headers.value })
@@ -121,20 +108,12 @@ const cargar = async () => {
 
 const guardar = async () => {
   loading.value = true
-  error.value = ''
+  error.value   = ''
   try {
     if (editando.value) {
-      await $fetch(`/api/rutas/${editando.value}`, {
-        method: 'PUT',
-        headers: headers.value,
-        body: form,
-      })
+      await $fetch(`/api/rutas/${editando.value}`, { method: 'PUT', headers: headers.value, body: form })
     } else {
-      await $fetch('/api/rutas', {
-        method: 'POST',
-        headers: headers.value,
-        body: form,
-      })
+      await $fetch('/api/rutas', { method: 'POST', headers: headers.value, body: form })
     }
     cancelar()
     await cargar()
@@ -146,26 +125,23 @@ const guardar = async () => {
 }
 
 const editar = (ruta) => {
-  editando.value = ruta.id
-  form.Nombre = ruta.Nombre
-  form.precio = ruta.precio
-  form.capacidad = ruta.capacidad
+  editando.value   = ruta.id
+  form.origen      = ruta.origen
+  form.destino     = ruta.destino
+  form.fecha       = ruta.fecha ? ruta.fecha.slice(0, 16) : ''
+  form.precio      = ruta.precio
+  form.capacidad   = ruta.capacidad
 }
 
 const cancelar = () => {
   editando.value = null
-  form.Nombre = ''
-  form.precio = ''
-  form.capacidad = ''
+  Object.assign(form, { origen: '', destino: '', fecha: '', precio: '', capacidad: '' })
 }
 
 const eliminar = async (id) => {
   if (!confirm('¿Eliminar esta ruta?')) return
   try {
-    await $fetch(`/api/rutas/${id}`, {
-      method: 'DELETE',
-      headers: headers.value,
-    })
+    await $fetch(`/api/rutas/${id}`, { method: 'DELETE', headers: headers.value })
     await cargar()
   } catch (err) {
     error.value = err.data?.message || 'Error al eliminar'

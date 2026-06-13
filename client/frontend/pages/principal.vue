@@ -66,7 +66,7 @@
                 {{ cargandoRutas ? 'Cargando rutas...' : 'Selecciona una ruta' }}
               </option>
               <option v-for="ruta in rutas" :key="ruta.id" :value="ruta.id">
-                {{ ruta.Nombre }}
+                {{ ruta.origen }} → {{ ruta.destino }}
               </option>
             </select>
           </div>

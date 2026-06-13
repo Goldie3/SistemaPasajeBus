@@ -23,12 +23,17 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    usuarioid: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
   }, {
     tableName: 'Pasajes',
   });
 
   Pasaje.associate = (models) => {
     Pasaje.belongsTo(models.Ruta, { foreignKey: 'rutaId', as: 'ruta' });
+    Pasaje.belongsTo(models.Usuario, { foreignKey: 'usuarioId', as: 'usuario' });
   };
 
   return Pasaje;

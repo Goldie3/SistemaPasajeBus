@@ -39,6 +39,12 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE,
       },
+      usuarioid: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        references: { model: 'usuarios', key: 'id' },
+        onDelete: 'CASCADE',
+      },
     });
   },
 
