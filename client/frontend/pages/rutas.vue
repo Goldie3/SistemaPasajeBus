@@ -22,6 +22,11 @@
         </div>
 
         <div class="field">
+          <label>Parada <span style="color:#9ca3af;">(opcional)</span></label>
+          <input v-model="form.parada" placeholder="Ciudad intermedia (opcional)" :disabled="loading" />
+        </div>
+
+        <div class="field">
           <label>Fecha y hora de salida</label>
           <input v-model="form.fecha" type="datetime-local" :disabled="loading" />
         </div>
@@ -59,6 +64,7 @@
             <th>ID</th>
             <th>Origen</th>
             <th>Destino</th>
+            <th>Parada</th>
             <th>Fecha y hora</th>
             <th>Precio</th>
             <th>Capacidad</th>
@@ -70,6 +76,7 @@
             <td>{{ ruta.id }}</td>
             <td>{{ ruta.origen }}</td>
             <td>{{ ruta.destino }}</td>
+            <td>{{ ruta.parada ?? '—' }}</td>
             <td>{{ formatearFechaHora(ruta.fecha) }}</td>
             <td>${{ Number(ruta.precio).toLocaleString('es-CL') }}</td>
             <td>{{ ruta.capacidad }}</td>
@@ -94,7 +101,7 @@ const router  = useRouter()
 const headers = computed(() => ({ Authorization: `Bearer ${token.value}` }))
 
 const rutas    = ref([])
-const form     = reactive({ origen: '', destino: '', fecha: '', precio: '', capacidad: '' })
+const form     = reactive({ origen: '', destino: '', parada: '', fecha: '', precio: '', capacidad: '' })
 const editando = ref(null)
 const loading  = ref(false)
 const error    = ref('')
@@ -111,10 +118,11 @@ const guardar = async () => {
   loading.value = true
   error.value   = ''
   try {
+    const body = { ...form, parada: form.parada || null }
     if (editando.value) {
-      await $fetch(`/api/rutas/${editando.value}`, { method: 'PUT', headers: headers.value, body: form })
+      await $fetch(`/api/rutas/${editando.value}`, { method: 'PUT', headers: headers.value, body })
     } else {
-      await $fetch('/api/rutas', { method: 'POST', headers: headers.value, body: form })
+      await $fetch('/api/rutas', { method: 'POST', headers: headers.value, body })
     }
     cancelar()
     await cargar()
@@ -129,6 +137,7 @@ const editar = (ruta) => {
   editando.value = ruta.id
   form.origen    = ruta.origen
   form.destino   = ruta.destino
+  form.parada    = ruta.parada ?? ''
   form.fecha     = ruta.fecha ? ruta.fecha.slice(0, 16) : ''
   form.precio    = ruta.precio
   form.capacidad = ruta.capacidad
@@ -136,7 +145,7 @@ const editar = (ruta) => {
 
 const cancelar = () => {
   editando.value = null
-  Object.assign(form, { origen: '', destino: '', fecha: '', precio: '', capacidad: '' })
+  Object.assign(form, { origen: '', destino: '', parada: '', fecha: '', precio: '', capacidad: '' })
 }
 
 const eliminar = async (id) => {

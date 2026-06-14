@@ -15,6 +15,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
+    parada: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     fecha: {
       type: DataTypes.DATE,
       allowNull: false,

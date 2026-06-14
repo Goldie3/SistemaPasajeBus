@@ -676,3 +676,15 @@
 .politica-badge--verde  { background: #dcfce7; color: #166534; }
 .politica-badge--amarillo { background: #fef3c7; color: #92400e; }
 .politica-badge--rojo   { background: #fee2e2; color: #991b1b; }
+
+.ruta-parada {
+  font-size: 0.82rem;
+  color: #6b7280;
+  background: #f3f4f6;
+  border-radius: 6px;
+  padding: 4px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  width: fit-content;
+}

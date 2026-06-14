@@ -12,6 +12,6 @@ router.get('/ruta/:rutaId/asientos', authenticate, validate, pasajeController.ge
 router.get('/:id', authenticate, validate, pasajeController.getPasajeById);
 router.post('/', authenticate, validate, pasajeController.createPasaje);
 router.put('/:id', authenticate, isAdmin, validate, pasajeController.updatePasaje);
-router.delete('/:id', authenticate, isAdmin, validate, pasajeController.deletePasaje);
+router.delete('/:id', authenticate, validate, pasajeController.deletePasaje);
 
 module.exports = router;

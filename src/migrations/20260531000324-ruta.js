@@ -23,6 +23,10 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      parada: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
       fecha: {
         type: Sequelize.DATETIME,
         allowNull: false,
