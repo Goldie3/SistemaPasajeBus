@@ -28,7 +28,7 @@ module.exports = {
         allowNull: true,
       },
       fecha: {
-        type: Sequelize.DATETIME,
+        type: Sequelize.DATE,
         allowNull: false,
       },
       precio: {
