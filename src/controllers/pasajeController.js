@@ -138,9 +138,6 @@ exports.deletePasaje = asyncHandler(async (req, res) => {
 
   if (!pasaje) throw new AppError('Pasaje no encontrado', 404);
 
-  if (pasaje.usuarioId && req.usuario && pasaje.usuarioId !== req.usuario.id)
-    throw new AppError('No tienes permiso para eliminar este pasaje', 403);
-
   await pasaje.destroy();
   res.status(200).json({ message: 'Pasaje eliminado correctamente' });
 });
