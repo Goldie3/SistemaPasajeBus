@@ -87,6 +87,9 @@
 
 <script setup>
 import '~/assets/register.css'
+
+const config = useRuntimeConfig()
+
 const form = reactive({
   nombre: '',
   email: '',
@@ -104,10 +107,12 @@ const validate = () => {
   if (!form.nombre) errors.nombre = 'El nombre es requerido'
 
   if (!form.email) errors.email = 'El email es requerido'
-  else if (!/\S+@\S+\.\S+/.test(form.email)) errors.email = 'Email inválido'
+  else if (!/\S+@\S+\.\S+/.test(form.email))
+    errors.email = 'Email inválido'
 
   if (!form.password) errors.password = 'La contraseña es requerida'
-  else if (form.password.length < 6) errors.password = 'Mínimo 6 caracteres'
+  else if (form.password.length < 6)
+    errors.password = 'Mínimo 6 caracteres'
 
   if (form.password && form.confirm !== form.password)
     errors.confirm = 'Las contraseñas no coinciden'
@@ -117,24 +122,33 @@ const validate = () => {
 
 const handleRegister = async () => {
   if (!validate()) return
+
   loading.value = true
 
   try {
-    const data = await $fetch('/api/auth/register', {
-      method: 'POST',
-      body: {
-        nombre: form.nombre,
-        email: form.email,
-        password: form.password,
-      },
-    })
+    const data = await $fetch(
+      `${config.public.apiUrl}/api/auth/register`,
+      {
+        method: 'POST',
+        body: {
+          nombre: form.nombre,
+          email: form.email,
+          password: form.password,
+        },
+      }
+    )
 
     const token = useCookie('auth_token')
-    token.value = data.data.accessToken  // ← data.data
+    token.value = data.data.accessToken
 
     router.push('/principal')
+
   } catch (err) {
-    errors.general = err.data?.message || 'Error al crear la cuenta'
+    console.error(err)
+    errors.general =
+      err?.data?.message ||
+      err?.message ||
+      'Error al crear la cuenta'
   } finally {
     loading.value = false
   }

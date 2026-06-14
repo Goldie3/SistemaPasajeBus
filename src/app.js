@@ -18,6 +18,7 @@ app.use('/', routes);
 
 app.use(errorHandler);
 
-app.listen(port, () => {
-  console.log(`Servidor corriendo en http://localhost:3000`);
-});
+app.use(cors({
+  origin: process.env.FRONTEND_URL,
+  credentials: true,
+}));
