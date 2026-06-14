@@ -104,9 +104,6 @@ exports.updatePasaje = asyncHandler(async (req, res) => {
 
   if (!pasaje) throw new AppError('Pasaje no encontrado', 404);
 
-  if (pasaje.usuarioId && req.usuario && pasaje.usuarioId !== req.usuario.id)
-    throw new AppError('No tienes permiso para editar este pasaje', 403);
-
   const { nombre, apellido, rutaId, asiento, usuarioId } = req.body;
 
   if (asiento !== undefined || rutaId !== undefined) {
