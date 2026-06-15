@@ -1,14 +1,25 @@
 require('dotenv').config();
 const express = require('express');
-const cors = require('cors');                              
+const cors = require('cors');
 const errorHandler = require('./middleware/errorHandler');
 const app = express();
 const port = process.env.PORT || 4000;
 
-app.use(cors({                                            
-  origin: 'http://localhost:3000',
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://tu-frontend-en-produccion.com', // reemplaza con tu URL real
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('No permitido por CORS'));
+    }
+  },
   credentials: true,
-}));                                                     
+}));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -18,7 +29,6 @@ app.use('/', routes);
 
 app.use(errorHandler);
 
-app.use(cors({
-  origin: process.env.FRONTEND_URL,
-  credentials: true,
-}));
+app.listen(port, () => {
+  console.log(`Servidor corriendo en el puerto ${port}`);
+});
