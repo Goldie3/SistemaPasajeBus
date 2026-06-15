@@ -85,6 +85,8 @@ PORT=4000
 NODE_ENV=development
 
 # Base de datos
+DATABASE_URL=mysql://usuario:password@localhost:3306/nombre_base_datos
+
 DB_USER=usuario
 DB_PASSWORD=password
 DB_NAME=nombre_base_datos
@@ -92,11 +94,23 @@ DB_HOST=localhost
 DB_PORT=3306
 
 # JWT
+JWT_SECRET=tu_secreto_jwt
 JWT_ACCESS_SECRET=tu_access_secret_de_al_menos_32_caracteres
 JWT_REFRESH_SECRET=tu_refresh_secret_de_al_menos_32_caracteres
+
 JWT_ACCESS_EXPIRES_IN=15m
 JWT_REFRESH_EXPIRES_IN=7d
 
+#conexion produccion
+MYSQL_DATABASE="${{MySQL.MYSQL_DATABASE}}"
+MYSQL_PUBLIC_URL="${{MySQL.MYSQL_PUBLIC_URL}}"
+MYSQL_ROOT_PASSWORD="${{MySQL.MYSQL_ROOT_PASSWORD}}"
+MYSQL_URL="${{MySQL.MYSQL_URL}}"
+MYSQLDATABASE="${{MySQL.MYSQLDATABASE}}"
+MYSQLHOST="${{MySQL.MYSQLHOST}}"
+MYSQLPASSWORD="${{MySQL.MYSQLPASSWORD}}"
+MYSQLPORT="${{MySQL.MYSQLPORT}}"
+MYSQLUSER="${{MySQL.MYSQLUSER}}"
 # Frontend
 FRONTEND_URL=http://localhost:3000
 ```
