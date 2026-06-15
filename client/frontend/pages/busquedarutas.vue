@@ -87,6 +87,11 @@
               <span class="ruta-lugar">{{ ruta.destino }}</span>
             </div>
 
+            <!-- Parada intermedia (si existe) -->
+            <div v-if="ruta.parada" class="ruta-parada">
+              🚏 Parada: {{ ruta.parada }}
+            </div>
+
             <div v-if="misReservas[ruta.id]">
               <span class="badge-reserva">✓ Tienes el asiento {{ misReservas[ruta.id].asiento }}</span>
             </div>
@@ -153,6 +158,8 @@
           <strong style="color: #0d47a1;">{{ rutaSeleccionada?.origen }}</strong>
           → <strong style="color: #0d47a1;">{{ rutaSeleccionada?.destino }}</strong>
           &nbsp;·&nbsp; {{ formatearFecha(rutaSeleccionada?.fecha) }}, {{ formatearHora(rutaSeleccionada?.fecha) }}
+          <br v-if="rutaSeleccionada?.parada" />
+          <span v-if="rutaSeleccionada?.parada">🚏 Parada: {{ rutaSeleccionada.parada }}</span>
         </p>
 
         <div v-if="exitoReserva" class="alert alert--success">
@@ -317,7 +324,7 @@ import '~/assets/busquedarutas.css'
 
 definePageMeta({ middleware: 'auth' })
 
-const API     = 'http://localhost:4000'
+const API     = '/api'
 const router  = useRouter()
 const token   = useCookie('auth_token')
 const headers = computed(() => ({ Authorization: `Bearer ${token.value}` }))
