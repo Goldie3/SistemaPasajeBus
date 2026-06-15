@@ -120,7 +120,7 @@ const handleRegister = async () => {
   loading.value = true
 
   try {
-    const data = await $fetch('/api/auth/register', {
+    const data = await $fetch('/auth/register', {
       method: 'POST',
       body: {
         nombre: form.nombre,
