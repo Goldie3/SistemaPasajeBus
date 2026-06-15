@@ -44,7 +44,7 @@ module.exports = (sequelize, DataTypes) => {
       },
     },
   }, {
-    tableName: 'Rutas',
+    tableName: 'rutas',
   });
 
   Ruta.associate = (models) => {

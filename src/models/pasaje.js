@@ -28,7 +28,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true,
     },
   }, {
-    tableName: 'Pasajes',
+    tableName: 'pasajes',
   });
 
   Pasaje.associate = (models) => {
