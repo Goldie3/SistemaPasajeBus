@@ -40,7 +40,7 @@
 import '~/assets/principal.css'
 definePageMeta({ middleware: 'auth' })
 
-const API = 'http://localhost:4000'
+const API = '/api'
 const token = useCookie('auth_token')
 const router = useRouter()
 const usuario = ref(null)
