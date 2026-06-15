@@ -174,7 +174,7 @@
           </div>
 
           <div class="field">
-            <label>Apellido <span class="opcional">(opcional)</span></label>
+            <label>Apellido *</label>
             <input v-model="formReserva.apellido" type="text" placeholder="Tu apellido" />
           </div>
 
@@ -227,7 +227,7 @@
             <button class="btn btn--secondary" @click="cerrarModalReserva">Cancelar</button>
             <button
               class="btn btn--primary"
-              :disabled="enviandoReserva || !formReserva.asiento || !formReserva.nombre"
+              :disabled="enviandoReserva || !formReserva.asiento || !formReserva.nombre || !formReserva.apellido"
               @click="confirmarReserva"
             >
               {{ enviandoReserva ? 'Reservando...' : 'Confirmar reserva' }}
@@ -493,7 +493,7 @@ const cerrarModalReserva = () => {
 }
 
 const confirmarReserva = async () => {
-  if (!formReserva.nombre || !formReserva.asiento) return
+  if (!formReserva.nombre || !formReserva.apellido || !formReserva.asiento) return
   enviandoReserva.value = true
   errorReserva.value    = ''
   try {
@@ -502,7 +502,7 @@ const confirmarReserva = async () => {
       headers: headers.value,
       body: {
         nombre:   formReserva.nombre,
-        apellido: formReserva.apellido || null,
+        apellido: formReserva.apellido,
         rutaId:   rutaSeleccionada.value.id,
         asiento:  formReserva.asiento,
       },

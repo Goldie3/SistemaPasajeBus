@@ -22,18 +22,18 @@
         </div>
 
         <div class="field">
-          <label>Nombre</label>
-          <input v-model="form.nombre" placeholder="Nombre del pasajero" :disabled="loading" />
+          <label>Nombre *</label>
+          <input v-model="form.nombre" placeholder="Nombre del pasajero" :disabled="loading" required />
         </div>
 
         <div class="field">
-          <label>Apellido</label>
-          <input v-model="form.apellido" placeholder="Apellido del pasajero" :disabled="loading" />
+          <label>Apellido *</label>
+          <input v-model="form.apellido" placeholder="Apellido del pasajero" :disabled="loading" required />
         </div>
 
         <div class="field">
           <label>Ruta</label>
-          <select v-model="form.rutaId" :disabled="loading" @change="onRutaChange">
+          <select v-model="form.rutaId" :disabled="loading" @change="onRutaChange" required>
             <option disabled value="">Selecciona una ruta</option>
             <option v-for="ruta in rutas" :key="ruta.id" :value="ruta.id">
               {{ ruta.origen }} → {{ ruta.destino }}
@@ -51,6 +51,7 @@
             :max="rutaActual?.capacidad ?? 999"
             placeholder="Número de asiento"
             :disabled="loading || !form.rutaId"
+            required
           />
           <small v-if="rutaActual" style="color:#6b7280;">
             Capacidad: {{ rutaActual.capacidad }} asientos
@@ -58,7 +59,7 @@
         </div>
 
         <div class="buttons">
-          <button class="btn-primary" type="submit" :disabled="loading">
+          <button class="btn-primary" type="submit" :disabled="loading || !form.nombre || !form.apellido || !form.rutaId || !form.asiento">
             {{ editando ? 'Actualizar' : 'Agregar' }}
           </button>
           <button v-if="editando" class="btn-secondary" type="button" @click="cancelar">
@@ -154,13 +155,15 @@ const cargar = async () => {
 const onRutaChange = () => { form.asiento = '' }
 
 const guardar = async () => {
+  if (!form.nombre || !form.apellido || !form.rutaId || !form.asiento) return
+
   loading.value = true
   error.value   = ''
   try {
     const body = {
       usuarioId: form.usuarioId || null,
       nombre:    form.nombre,
-      apellido:  form.apellido || null,
+      apellido:  form.apellido,
       rutaId:    form.rutaId,
       asiento:   form.asiento,
     }
