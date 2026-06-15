@@ -7,7 +7,7 @@ const port = process.env.PORT || 4000;
 
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://tu-frontend-en-produccion.com', // reemplaza con tu URL real
+  'https://proactive-amazement-production-c6df.up.railway.app',
 ];
 
 app.use(cors({
