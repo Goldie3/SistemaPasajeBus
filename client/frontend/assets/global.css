@@ -303,6 +303,20 @@ tbody tr:hover { background: #f8fafc; }
   font-size: 14px;
 }
 
+/* ─── Volver link ─── */
+.volver-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-decoration: none;
+  margin-bottom: 12px;
+  transition: color 0.2s;
+}
+.volver-link:hover { color: var(--primary); }
+
 /* ─── Helpers ─── */
 .container {
   max-width: 1100px;

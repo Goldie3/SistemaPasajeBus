@@ -2,6 +2,8 @@
   <div class="busqueda-page">
     <div class="container" style="padding-top: 100px; padding-bottom: 40px;">
 
+      <NuxtLink to="/principal" class="volver-link">← Volver al inicio</NuxtLink>
+
       <div class="search-bar-card">
         <form class="search-bar" @submit.prevent="buscar">
           <div class="sb-field">

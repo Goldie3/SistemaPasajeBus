@@ -6,24 +6,22 @@
         BusExpress
       </NuxtLink>
 
-      <div class="navbar-links" v-if="!ocultarLinks">
+      <div class="navbar-links" v-if="!esAuthPage">
         <template v-if="!usuario">
           <NuxtLink to="/login" class="nav-link">Ingresar</NuxtLink>
           <NuxtLink to="/register" class="btn btn--primary">Registrarse</NuxtLink>
         </template>
         <template v-else>
-          <template v-if="usuario.rol === 'admin'">
-            <NuxtLink to="/rutas" class="nav-link">Rutas</NuxtLink>
-            <NuxtLink to="/pasajes" class="nav-link">Pasajes</NuxtLink>
-          </template>
-          <NuxtLink to="/busquedarutas" class="nav-link">Buscar viajes</NuxtLink>
-          <NuxtLink to="/principal" class="nav-link">Mi cuenta</NuxtLink>
+          <span class="nav-user">{{ usuario.nombre }}</span>
+          <span class="rol-badge-sm">{{ usuario.rol === 'admin' ? 'Admin' : 'User' }}</span>
           <button class="btn btn--danger" @click="cerrarSesion" style="padding:6px 14px;font-size:12px;">Salir</button>
         </template>
       </div>
     </nav>
 
-    <main style="padding-top: var(--nav-height); min-height: 100vh;">
+    <AppTabs :usuario="usuario" v-if="usuario" />
+
+    <main :style="{ paddingTop: usuario ? 'calc(var(--nav-height) + var(--tabs-height))' : 'var(--nav-height)', minHeight: '100vh' }">
       <slot />
     </main>
   </div>
@@ -35,7 +33,7 @@ const router = useRouter()
 const route = useRoute()
 const usuario = ref(null)
 
-const ocultarLinks = computed(() =>
+const esAuthPage = computed(() =>
   ['/login', '/register', '/nuevapassword', '/reset-password'].includes(route.path)
 )
 
@@ -56,3 +54,26 @@ const cerrarSesion = () => {
   router.push('/login')
 }
 </script>
+
+<style>
+:root { --tabs-height: 46px; }
+</style>
+
+<style scoped>
+.nav-user {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.rol-badge-sm {
+  background: var(--primary-light);
+  color: var(--primary);
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+</style>

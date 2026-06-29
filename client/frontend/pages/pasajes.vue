@@ -1,6 +1,7 @@
 <template>
   <div class="admin-page">
     <div class="container" style="padding-top: 100px; padding-bottom: 40px;">
+      <NuxtLink to="/principal" class="volver-link">← Volver al inicio</NuxtLink>
       <div class="page-header">
         <h1>Gestión de Pasajes</h1>
         <p>Administra los pasajes registrados en el sistema</p>
