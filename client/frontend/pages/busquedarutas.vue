@@ -222,7 +222,7 @@
 </template>
 
 <script setup>
-definePageMeta({ middleware: 'auth' })
+definePageMeta({ middleware: 'auth', layout: 'auth' })
 
 const API = '/api'
 const router = useRouter()

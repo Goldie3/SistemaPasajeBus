@@ -87,7 +87,8 @@
 </template>
 
 <script setup>
-definePageMeta({ middleware: 'auth' })
+definePageMeta({ middleware: 'auth', layout: 'auth' })
+
 
 const token = useCookie('auth_token')
 const headers = computed(() => ({ Authorization: `Bearer ${token.value}` }))

@@ -63,7 +63,8 @@
 </template>
 
 <script setup>
-definePageMeta({ middleware: 'auth' })
+definePageMeta({ middleware: 'auth', layout: 'auth' })
+
 
 const token = useCookie('auth_token')
 const router = useRouter()
@@ -71,13 +72,14 @@ const usuario = ref(null)
 const stats = reactive({ rutas: 0, pasajesHoy: 0, totalPasajes: 0 })
 
 onMounted(async () => {
-  if (!token.value) { router.push('/login'); return }
+  //if (!token.value) { router.push('/login'); return }//
   try {
     const data = await $fetch('/api/auth/me', {
       headers: { Authorization: `Bearer ${token.value}` }
     })
     usuario.value = data.data
-  } catch { router.push('/login'); return }
+  } catch { //router.push('/login'); return// 
+  }
 
   try {
     const rutas = await $fetch('/api/rutas')
