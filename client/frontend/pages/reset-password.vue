@@ -7,7 +7,7 @@
 
       <div v-if="tokenInvalido" class="alert alert--error">
         ✕ El link es inválido o ya expiró.
-        <NuxtLink to="/forgot-password">Solicitar uno nuevo</NuxtLink>
+        <NuxtLink to="/nuevapassword">Solicitar uno nuevo</NuxtLink>
       </div>
 
       <div v-else-if="exito" class="alert alert--success">
