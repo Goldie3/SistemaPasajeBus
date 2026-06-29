@@ -120,7 +120,16 @@
         </p>
 
         <div v-if="exitoReserva" class="alert alert--success">
-          ✓ Pasaje reservado. Asiento {{ asientoConfirmado }}.
+          <div>✓ Pasaje reservado. Asiento <strong>{{ asientoConfirmado }}</strong>.</div>
+          <NuxtLink
+            v-if="pasajeCreado?.id"
+            :to="`/comprobante/${pasajeCreado.id}`"
+            class="btn btn--primary"
+            style="margin-top:12px;width:100%;justify-content:center;"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            Ver comprobante
+          </NuxtLink>
         </div>
         <div v-if="errorReserva" class="alert alert--error">{{ errorReserva }}</div>
 
@@ -305,12 +314,13 @@ const enviandoReserva = ref(false)
 const exitoReserva = ref(false)
 const errorReserva = ref('')
 const asientoConfirmado = ref(null)
+const pasajeCreado = ref(null)
 const asientosDisponibles = computed(() => (rutaSeleccionada.value?.capacidad ?? 0) - asientosOcupados.value.length)
 
 const abrirModalReserva = async (ruta) => {
   rutaSeleccionada.value = ruta
   formReserva.nombre = ''; formReserva.apellido = ''; formReserva.asiento = null
-  exitoReserva.value = false; errorReserva.value = ''; modalReserva.value = true
+  exitoReserva.value = false; errorReserva.value = ''; pasajeCreado.value = null; modalReserva.value = true
   cargandoAsientos.value = true
   try {
     const data = await $fetch(`${API}/pasajes/ruta/${ruta.id}/asientos`, { headers: headers.value })
@@ -326,10 +336,11 @@ const confirmarReserva = async () => {
   if (!formReserva.nombre || !formReserva.apellido || !formReserva.asiento) return
   enviandoReserva.value = true; errorReserva.value = ''
   try {
-    await $fetch(`${API}/pasajes`, {
+    const nuevoPasaje = await $fetch(`${API}/pasajes`, {
       method: 'POST', headers: headers.value,
       body: { nombre: formReserva.nombre, apellido: formReserva.apellido, rutaId: rutaSeleccionada.value.id, asiento: formReserva.asiento },
     })
+    pasajeCreado.value = nuevoPasaje
     asientoConfirmado.value = formReserva.asiento; exitoReserva.value = true
     await cargarMisReservas(todasLasRutas.value)
   } catch (err) { errorReserva.value = err?.data?.message ?? 'Error al crear el pasaje.' }

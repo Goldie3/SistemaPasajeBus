@@ -15,12 +15,12 @@
           <span class="stat-label">Rutas disponibles</span>
         </div>
         <div class="stat-card">
-          <span class="stat-num" style="color:var(--primary);">{{ stats.pasajesHoy }}</span>
-          <span class="stat-label">Pasajes hoy</span>
+          <span class="stat-num" style="color:var(--primary);">{{ usuario?.rol === 'admin' ? stats.pasajesHoy : stats.misPasajes }}</span>
+          <span class="stat-label">{{ usuario?.rol === 'admin' ? 'Pasajes hoy' : 'Mis pasajes' }}</span>
         </div>
         <div class="stat-card">
           <span class="stat-num" style="color:#f59e0b;">{{ stats.totalPasajes }}</span>
-          <span class="stat-label">Total pasajes</span>
+          <span class="stat-label">{{ usuario?.rol === 'admin' ? 'Total pasajes' : 'Pasajes próximos' }}</span>
         </div>
       </div>
 
@@ -35,6 +35,44 @@
             <p>Encuentra rutas y reserva tu pasaje</p>
           </div>
         </NuxtLink>
+
+        <!-- Mis Pasajes (visible para todos los usuarios) -->
+        <div class="acceso-card acceso-card--expandible" :class="{ 'acceso-card--open': misPasajesOpen }">
+          <div class="acceso-card-head" @click="misPasajesOpen = !misPasajesOpen">
+            <div class="acceso-icon" style="background:var(--primary-light);color:var(--primary);">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
+            </div>
+            <div style="flex:1;">
+              <h3>Mis Pasajes</h3>
+              <p>Consulta y descarga tus comprobantes</p>
+            </div>
+            <svg class="acceso-chevron" :class="{ 'acceso-chevron--open': misPasajesOpen }" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+
+          <div v-if="misPasajesOpen" class="mispasajes-body">
+            <div v-if="cargandoPasajes" class="mispasajes-estado">Cargando...</div>
+            <div v-else-if="!misPasajesList.length" class="mispasajes-estado">No tienes pasajes aún. ¡Busca un viaje!</div>
+            <div v-else class="mispasajes-lista">
+              <NuxtLink
+                v-for="p in misPasajesList"
+                :key="p.id"
+                :to="`/comprobante/${p.id}`"
+                class="mispasajes-item"
+              >
+                <div class="mispasajes-ruta">
+                  <span class="mispasajes-origen">{{ p.ruta?.origen ?? '—' }}</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                  <span class="mispasajes-destino">{{ p.ruta?.destino ?? '—' }}</span>
+                </div>
+                <div class="mispasajes-meta">
+                  <span>{{ p.ruta ? formatearFecha(p.ruta.fecha) : '—' }}</span>
+                  <span class="mispasajes-asiento">Asiento {{ p.asiento }}</span>
+                </div>
+                <span class="mispasajes-link">Ver comprobante →</span>
+              </NuxtLink>
+            </div>
+          </div>
+        </div>
 
         <template v-if="usuario?.rol === 'admin'">
           <NuxtLink to="/rutas" class="acceso-card">
@@ -69,7 +107,31 @@ definePageMeta({ middleware: 'auth', layout: 'auth' })
 const token = useCookie('auth_token')
 const router = useRouter()
 const usuario = ref(null)
-const stats = reactive({ rutas: 0, pasajesHoy: 0, totalPasajes: 0 })
+const stats = reactive({ rutas: 0, pasajesHoy: 0, totalPasajes: 0, misPasajes: 0 })
+
+const misPasajesOpen = ref(false)
+const misPasajesList = ref([])
+const cargandoPasajes = ref(false)
+
+const formatearFecha = (f) =>
+  f ? new Date(f).toLocaleDateString('es-CL', { day: '2-digit', month: 'long', year: 'numeric' }) : '—'
+
+const cargarMisPasajes = async () => {
+  cargandoPasajes.value = true
+  try {
+    const p = await $fetch('/api/pasajes', { headers: { Authorization: `Bearer ${token.value}` } })
+    const lista = Array.isArray(p) ? p : (p.data ?? [])
+    misPasajesList.value = lista
+    const ahora = new Date()
+    stats.misPasajes = lista.length
+    stats.totalPasajes = lista.filter(x => x.ruta && new Date(x.ruta.fecha) >= ahora).length
+  } catch {}
+  finally { cargandoPasajes.value = false }
+}
+
+watch(misPasajesOpen, (open) => {
+  if (open && !misPasajesList.value.length) cargarMisPasajes()
+})
 
 onMounted(async () => {
   //if (!token.value) { router.push('/login'); return }//
@@ -96,6 +158,8 @@ onMounted(async () => {
       const hoy = new Date().toDateString()
       stats.pasajesHoy = lista.filter(p => new Date(p.createdAt).toDateString() === hoy).length
     } catch {}
+  } else {
+    await cargarMisPasajes()
   }
 })
 </script>
@@ -223,5 +287,109 @@ onMounted(async () => {
   font-size: 12px;
   color: #9ca3af;
   margin: 0;
+}
+
+/* ─── Acceso card expandible (Mis Pasajes) ─── */
+.acceso-card--expandible {
+  flex-direction: column;
+  align-items: stretch;
+  cursor: default;
+  padding: 0;
+  overflow: hidden;
+}
+
+.acceso-card-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.acceso-card-head:hover {
+  background: #f9fafb;
+}
+
+.acceso-chevron {
+  color: #9ca3af;
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+
+.acceso-chevron--open {
+  transform: rotate(180deg);
+}
+
+.mispasajes-body {
+  border-top: 1px solid #e5e7eb;
+  padding: 12px 16px;
+}
+
+.mispasajes-estado {
+  text-align: center;
+  padding: 16px;
+  color: #9ca3af;
+  font-size: 13px;
+}
+
+.mispasajes-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mispasajes-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.mispasajes-item:hover {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+.mispasajes-ruta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  font-size: 14px;
+  color: #1f2937;
+}
+
+.mispasajes-ruta svg {
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+.mispasajes-meta {
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.mispasajes-asiento {
+  background: #e0fafb;
+  color: var(--primary);
+  padding: 1px 8px;
+  border-radius: 5px;
+  font-weight: 600;
+}
+
+.mispasajes-link {
+  font-size: 12px;
+  color: var(--primary);
+  font-weight: 600;
+  margin-top: 2px;
 }
 </style>
