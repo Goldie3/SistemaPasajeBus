@@ -6,18 +6,11 @@ const path = require('path');
 const { Sequelize } = require('sequelize');
 
 const env = process.env.NODE_ENV || 'development';
-const config = require(__dirname + '/../config/database.js')[env];
 
-let sequelize;
-if (process.env.DATABASE_URL) {
-  sequelize = new Sequelize(process.env.DATABASE_URL, config);
-} else if (process.env.MYSQL_URL) {
-  sequelize = new Sequelize(process.env.MYSQL_URL, config);
-} else if (process.env.MYSQL_PUBLIC_URL) {
-  sequelize = new Sequelize(process.env.MYSQL_PUBLIC_URL, config);
-} else {
-  sequelize = new Sequelize(config.database, config.username, config.password, config);
-}
+const sequelize = new Sequelize(process.env.DATABASE_URL, {
+  dialect: 'mysql',
+  logging: env === 'development' ? console.log : false,
+});
 
 const db = {};
 
