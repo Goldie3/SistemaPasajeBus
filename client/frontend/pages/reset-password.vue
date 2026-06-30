@@ -74,7 +74,7 @@ const handleSubmit = async () => {
   if (!validate()) return
   loading.value = true; Object.keys(errors).forEach(k => delete errors[k])
   try {
-    await $fetch('/api/auth/reset-password', { method: 'POST', body: { token: token.value, password: form.password } })
+    await $fetch('/auth/reset-password', { method: 'POST', body: { token: token.value, password: form.password } })
     exito.value = true; setTimeout(() => router.push('/login'), 2500)
   } catch (err) {
     const msg = err?.data?.message || ''

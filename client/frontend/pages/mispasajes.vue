@@ -93,7 +93,7 @@ onMounted(async () => {
   }
   
   try {
-    const data = await $fetch('/api/pasajes', { headers: headers.value })
+    const data = await $fetch('/pasajes', { headers: headers.value })
     pasajes.value = Array.isArray(data) ? data : (data.data ?? [])
     const allPasajes = Array.isArray(data) ? data : (data.data ?? [])
     pasajes.value = allPasajes.filter(p => p.ruta)

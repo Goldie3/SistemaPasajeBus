@@ -58,7 +58,7 @@ const handleLogin = async () => {
   if (!validate()) return
   loading.value = true
   try {
-    const data = await $fetch('/api/auth/login', { method: 'POST', body: form })
+    const data = await $fetch('/auth/login', { method: 'POST', body: form })
     const token = useCookie('auth_token')
     token.value = data.data.accessToken
     router.push('/principal')
