@@ -45,7 +45,7 @@ const error = ref('')
 const handleSubmit = async () => {
   error.value = ''; loading.value = true
   try {
-    await $fetch('/auth/forgot-password', { method: 'POST', body: { email: email.value } })
+    await $fetch('/api/auth/forgot-password', { method: 'POST', body: { email: email.value } })
     exito.value = true
   } catch (err) { error.value = err?.data?.message || 'Ocurrió un error.' }
   finally { loading.value = false }

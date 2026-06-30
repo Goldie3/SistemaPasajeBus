@@ -119,7 +119,7 @@ const formatearFecha = (f) =>
 const cargarMisPasajes = async () => {
   cargandoPasajes.value = true
   try {
-    const p = await $fetch('/pasajes', { headers: { Authorization: `Bearer ${token.value}` } })
+    const p = await $fetch('/api/pasajes', { headers: { Authorization: `Bearer ${token.value}` } })
     const lista = Array.isArray(p) ? p : (p.data ?? [])
     misPasajesList.value = lista
     const ahora = new Date()
@@ -136,7 +136,7 @@ watch(misPasajesOpen, (open) => {
 onMounted(async () => {
   //if (!token.value) { router.push('/login'); return }//
   try {
-    const data = await $fetch('/auth/me', {
+    const data = await $fetch('/api/auth/me', {
       headers: { Authorization: `Bearer ${token.value}` }
     })
     usuario.value = data.data
@@ -144,13 +144,13 @@ onMounted(async () => {
   }
 
   try {
-    const rutas = await $fetch('/rutas')
+    const rutas = await $fetch('/api/rutas')
     stats.rutas = (Array.isArray(rutas) ? rutas : rutas.data ?? []).length
   } catch {}
 
   if (usuario.value?.rol === 'admin') {
     try {
-      const pjs = await $fetch('/pasajes/admin', {
+      const pjs = await $fetch('/api/pasajes/admin', {
         headers: { Authorization: `Bearer ${token.value}` }
       })
       const lista = Array.isArray(pjs) ? pjs : pjs.data ?? []

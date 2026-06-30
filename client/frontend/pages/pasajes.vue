@@ -107,9 +107,9 @@ const formatearFecha = (f) => f ? new Date(f).toLocaleString('es-CL', { dateStyl
 
 const cargar = async () => {
   const [p, r, u] = await Promise.all([
-    $fetch('/pasajes/admin', { headers: headers.value }),
-    $fetch('/rutas', { headers: headers.value }),
-    $fetch('/auth/usuarios', { headers: headers.value }),
+    $fetch('/api/pasajes/admin', { headers: headers.value }),
+    $fetch('/api/rutas', { headers: headers.value }),
+    $fetch('/api/auth/usuarios', { headers: headers.value }),
   ])
   pasajes.value = Array.isArray(p) ? p : (p.data ?? [])
   rutas.value = Array.isArray(r) ? r : (r.data ?? [])
@@ -123,8 +123,8 @@ const guardar = async () => {
   loading.value = true; error.value = ''
   try {
     const body = { usuarioId: form.usuarioId || null, nombre: form.nombre, apellido: form.apellido, rutaId: form.rutaId, asiento: form.asiento }
-    if (editando.value) { await $fetch(`/pasajes/${editando.value}`, { method: 'PUT', headers: headers.value, body }) }
-    else { await $fetch('/pasajes', { method: 'POST', headers: headers.value, body }) }
+    if (editando.value) { await $fetch(`/api/pasajes/${editando.value}`, { method: 'PUT', headers: headers.value, body }) }
+    else { await $fetch('/api/pasajes', { method: 'POST', headers: headers.value, body }) }
     cancelar(); await cargar()
   } catch (err) { error.value = err.data?.message || 'Error al guardar' }
   finally { loading.value = false }
@@ -141,13 +141,13 @@ const cancelar = () => {
 
 const eliminar = async (id) => {
   if (!confirm('¿Eliminar este pasaje?')) return
-  try { await $fetch(`/pasajes/${id}`, { method: 'DELETE', headers: headers.value }); await cargar() }
+  try { await $fetch(`/api/pasajes/${id}`, { method: 'DELETE', headers: headers.value }); await cargar() }
   catch (err) { error.value = err.data?.message || 'Error al eliminar' }
 }
 
 onMounted(async () => {
   try {
-    const data = await $fetch('/auth/me', { headers: headers.value })
+    const data = await $fetch('/api/auth/me', { headers: headers.value })
     if (data.data?.rol !== 'admin') { router.push('/principal'); return }
   } catch { router.push('/login'); return }
   await cargar()

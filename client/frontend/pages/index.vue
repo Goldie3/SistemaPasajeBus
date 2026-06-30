@@ -124,7 +124,7 @@ const formatearHora = (f) => f
 
 onMounted(async () => {
   try {
-    const data = await $fetch('/rutas')
+    const data = await $fetch('/api/rutas')
     rutas.value = (Array.isArray(data) ? data : data.data ?? []).slice(0, 3)
   } catch {}
 })

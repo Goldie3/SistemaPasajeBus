@@ -262,7 +262,7 @@ const misReservas = ref({})
 const cargarMisReservas = async (rutas) => {
   if (!rutas.length) return
   try {
-    const p = await $fetch(`/pasajes`, { headers: headers.value })
+    const p = await $fetch(`${API}/pasajes`, { headers: headers.value })
     const m = {}
     for (const x of (Array.isArray(p) ? p : p.data ?? [])) m[x.rutaId] = x
     misReservas.value = m
@@ -273,7 +273,7 @@ const buscar = async () => {
   if (!hayFiltros.value) return
   cargando.value = true; estado.value = 'cargando'; mensajeError.value = ''
   try {
-    const data = await $fetch(`/rutas`, { headers: headers.value })
+    const data = await $fetch(`${API}/rutas`, { headers: headers.value })
     todasLasRutas.value = Array.isArray(data) ? data : (data.data ?? [])
     await cargarMisReservas(todasLasRutas.value)
     estado.value = rutasFiltradas.value.length > 0 ? 'resultados' : 'vacio'
@@ -323,7 +323,7 @@ const abrirModalReserva = async (ruta) => {
   exitoReserva.value = false; errorReserva.value = ''; pasajeCreado.value = null; modalReserva.value = true
   cargandoAsientos.value = true
   try {
-    const data = await $fetch(`/pasajes/ruta/${ruta.id}/asientos`, { headers: headers.value })
+    const data = await $fetch(`${API}/pasajes/ruta/${ruta.id}/asientos`, { headers: headers.value })
     asientosOcupados.value = data.ocupados ?? []
     miAsientoEnRuta.value = data.miAsiento ?? null
   } catch { errorReserva.value = 'No se pudieron cargar los asientos.' }
@@ -336,7 +336,7 @@ const confirmarReserva = async () => {
   if (!formReserva.nombre || !formReserva.apellido || !formReserva.asiento) return
   enviandoReserva.value = true; errorReserva.value = ''
   try {
-    const nuevoPasaje = await $fetch(`/pasajes`, {
+    const nuevoPasaje = await $fetch(`${API}/pasajes`, {
       method: 'POST', headers: headers.value,
       body: { nombre: formReserva.nombre, apellido: formReserva.apellido, rutaId: rutaSeleccionada.value.id, asiento: formReserva.asiento },
     })
@@ -368,7 +368,7 @@ const confirmarCancelacion = async () => {
   if (!pasaje) return
   enviandoCancelacion.value = true; errorCancelacion.value = ''
   try {
-    await $fetch(`/pasajes/${pasaje.id}`, { method: 'DELETE', headers: headers.value })
+    await $fetch(`${API}/pasajes/${pasaje.id}`, { method: 'DELETE', headers: headers.value })
     devolucionMonto.value = cancelacion.value.montoDevolucion
     exitoCancelacion.value = true
     const n = { ...misReservas.value }; delete n[rutaSeleccionada.value.id]; misReservas.value = n

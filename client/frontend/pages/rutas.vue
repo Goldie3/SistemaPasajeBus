@@ -93,14 +93,14 @@ const error = ref('')
 
 const formatearFecha = (f) => f ? new Date(f).toLocaleString('es-CL', { dateStyle: 'medium', timeStyle: 'short' }) : '—'
 
-const cargar = async () => { rutas.value = await $fetch('/rutas', { headers: headers.value }) }
+const cargar = async () => { rutas.value = await $fetch('/api/rutas', { headers: headers.value }) }
 
 const guardar = async () => {
   loading.value = true; error.value = ''
   try {
     const body = { ...form, parada: form.parada || null }
-    if (editando.value) { await $fetch(`/rutas/${editando.value}`, { method: 'PUT', headers: headers.value, body }) }
-    else { await $fetch('/rutas', { method: 'POST', headers: headers.value, body }) }
+    if (editando.value) { await $fetch(`/api/rutas/${editando.value}`, { method: 'PUT', headers: headers.value, body }) }
+    else { await $fetch('/api/rutas', { method: 'POST', headers: headers.value, body }) }
     cancelar(); await cargar()
   } catch (err) { error.value = err.data?.message || 'Error al guardar' }
   finally { loading.value = false }
@@ -118,13 +118,13 @@ const cancelar = () => {
 
 const eliminar = async (id) => {
   if (!confirm('¿Eliminar esta ruta?')) return
-  try { await $fetch(`/rutas/${id}`, { method: 'DELETE', headers: headers.value }); await cargar() }
+  try { await $fetch(`/api/rutas/${id}`, { method: 'DELETE', headers: headers.value }); await cargar() }
   catch (err) { error.value = err.data?.message || 'Error al eliminar' }
 }
 
 onMounted(async () => {
   try {
-    const data = await $fetch('/auth/me', { headers: headers.value })
+    const data = await $fetch('/api/auth/me', { headers: headers.value })
     if (data.data?.rol !== 'admin') { router.push('/principal'); return }
   } catch { router.push('/login'); return }
   await cargar()
