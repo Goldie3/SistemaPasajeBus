@@ -35,6 +35,12 @@ const tabs = computed(() => {
       adminOnly: false,
       active: route.path === '/busquedarutas',
     },
+    { label: 'Mis Pasajes',
+      to: '/mispasajes',
+      icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16v10H4z"/><path d="M4 12h16"/><path d="M8 7v10"/><path d="M16 7v10"/></svg>',
+      adminOnly: false,
+      active: route.path === '/mispasajes',
+    },
     {
       label: 'Gestión Rutas',
       to: '/rutas',
