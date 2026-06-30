@@ -23,7 +23,7 @@ export default defineNuxtConfig({
 
   routeRules: {
     '/api/**': {
-      proxy: `${process.env.NUXT_PUBLIC_API_URL || 'http://localhost:4000'}/api**`,
+      proxy: `${process.env.NUXT_PUBLIC_API_URL || 'http://localhost:4000'}**`,
     },
   },
 })

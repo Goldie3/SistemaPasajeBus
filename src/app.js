@@ -25,7 +25,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 const routes = require('./routes/index');
-app.use('/api', routes);
+app.use('/', routes);
 
 app.use(errorHandler);
 
