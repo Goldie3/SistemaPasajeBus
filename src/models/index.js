@@ -7,17 +7,8 @@ const { Sequelize } = require('sequelize');
 
 const env = process.env.NODE_ENV || 'development';
 
-// Motor configurable: por defecto 'postgres' (exigido por la pauta del curso).
-// Se puede volver a 'mysql' seteando DB_DIALECT=mysql en el .env, siempre que
-// el driver correspondiente (mysql2) esté instalado.
-const dialect = process.env.DB_DIALECT || 'postgres';
-
 const sequelize = new Sequelize(process.env.DATABASE_URL, {
-  dialect,
-  dialectOptions:
-    dialect === 'postgres' && env === 'production'
-      ? { ssl: { require: true, rejectUnauthorized: false } }
-      : {},
+  dialect: 'mysql',
   logging: env === 'development' ? console.log : false,
 });
 
