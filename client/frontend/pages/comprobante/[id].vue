@@ -121,6 +121,11 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
             Imprimir
           </button>
+          
+          <button class="btn btn--secondary" :disabled="generandoPdf" @click="descargarPdf">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg>
+            {{ generandoPdf ? 'Generando PDF...' : 'Descargar PDF' }}
+          </button>
           <NuxtLink to="/busquedarutas" class="btn btn--primary">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
             Buscar otro viaje
@@ -141,6 +146,7 @@ const headers = computed(() => ({ Authorization: `Bearer ${token.value}` }))
 const pasaje = ref(null)
 const cargando = ref(true)
 const errorMsg = ref('')
+const generandoPdf = ref(false)
 
 const formatearFecha = (f) =>
   f ? new Date(f).toLocaleDateString('es-CL', { day: '2-digit', month: 'long', year: 'numeric' }) : '—'
@@ -152,6 +158,15 @@ const formatearFechaCompleta = (f) =>
   f ? `${formatearFecha(f)}, ${formatearHora(f)}` : '—'
 
 const imprimir = () => window.print()
+
+const descargarPdf = async () => {
+  generandoPdf.value = true
+  try {
+    window.print()
+  } finally {
+    generandoPdf.value = false
+  }
+}
 
 onMounted(async () => {
   const id = route.params.id

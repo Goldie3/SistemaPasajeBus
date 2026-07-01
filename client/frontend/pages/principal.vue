@@ -6,7 +6,9 @@
           <h1>Bienvenido, {{ usuario?.nombre }}</h1>
           <p class="text-muted">Panel de control — ¿qué deseas hacer hoy?</p>
         </div>
-        <span class="rol-badge">{{ usuario?.rol === 'admin' ? 'Administrador' : 'Pasajero' }}</span>
+        <span v-if="usuario" class="rol-badge" :class="usuario.rol === 'admin' ? 'rol-badge--admin' : ''">
+          {{ usuario.rol === 'admin' ? 'Administrador' : 'Pasajero' }}
+        </span>
       </div>
 
       <div class="inicio-stats">
@@ -103,7 +105,6 @@
 <script setup>
 definePageMeta({ middleware: 'auth', layout: 'auth' })
 
-
 const token = useCookie('auth_token')
 const router = useRouter()
 const usuario = ref(null)
@@ -134,14 +135,12 @@ watch(misPasajesOpen, (open) => {
 })
 
 onMounted(async () => {
-  //if (!token.value) { router.push('/login'); return }//
   try {
     const data = await $fetch('/api/auth/me', {
       headers: { Authorization: `Bearer ${token.value}` }
     })
     usuario.value = data.data
-  } catch { //router.push('/login'); return// 
-  }
+  } catch {}
 
   try {
     const rutas = await $fetch('/api/rutas')
@@ -192,6 +191,11 @@ onMounted(async () => {
   font-size: 13px;
   font-weight: 600;
   white-space: nowrap;
+}
+
+.rol-badge--admin {
+  background: #fef3c7;
+  color: #d97706;
 }
 
 .inicio-stats {
@@ -289,7 +293,6 @@ onMounted(async () => {
   margin: 0;
 }
 
-/* ─── Acceso card expandible (Mis Pasajes) ─── */
 .acceso-card--expandible {
   flex-direction: column;
   align-items: stretch;

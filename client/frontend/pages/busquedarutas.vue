@@ -24,6 +24,16 @@
         </form>
       </div>
 
+      <div v-if="estado === 'resultados'" class="orden-bar">
+        <label for="orden-select">Ordenar por</label>
+        <select id="orden-select" v-model="orden">
+          <option value="fecha_asc">Horario: más próximo primero</option>
+          <option value="fecha_desc">Horario: más lejano primero</option>
+          <option value="precio_asc">Precio: menor a mayor</option>
+          <option value="precio_desc">Precio: mayor a menor</option>
+        </select>
+      </div>
+
       <div v-if="estado === 'inicial'" class="estado-box">
         <div class="estado-icon">🗺️</div>
         <h3>¿A dónde quieres viajar?</h3>
@@ -245,6 +255,7 @@ const estado = ref('inicial')
 const mensajeError = ref('')
 const cargando = ref(false)
 const todasLasRutas = ref([])
+const orden = ref('fecha_asc')
 
 const rutasFiltradas = computed(() => {
   let r = todasLasRutas.value
@@ -254,6 +265,22 @@ const rutasFiltradas = computed(() => {
   if (o) r = r.filter(x => x.origen?.toLowerCase().includes(o))
   if (d) r = r.filter(x => x.destino?.toLowerCase().includes(d))
   if (f) r = r.filter(x => x.fecha?.startsWith(f))
+  r = [...r]
+  switch (orden.value) {
+    case 'fecha_desc':
+      r.sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
+      break
+    case 'precio_asc':
+      r.sort((a, b) => Number(a.precio) - Number(b.precio))
+      break
+    case 'precio_desc':
+      r.sort((a, b) => Number(b.precio) - Number(a.precio))
+      break
+    case 'fecha_asc':
+    default:
+      r.sort((a, b) => new Date(a.fecha) - new Date(b.fecha))
+      break
+  }
   return r
 })
 
@@ -509,4 +536,19 @@ onMounted(async () => {
 .pol-badge--verde { background: #dcfce7; color: #166534; }
 .pol-badge--amarillo { background: #fef3c7; color: #92400e; }
 .pol-badge--rojo { background: #fee2e2; color: #991b1b; }
+
+.orden-bar {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 16px;
+}
+.orden-bar label {
+  font-size: 12px; font-weight: 700; color: #374151;
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+.orden-bar select {
+  padding: 8px 12px; border: 1.5px solid #d1d5db; border-radius: 8px;
+  font-size: 13px; color: #1f2937; background: #fff; outline: none;
+  font-family: 'Open Sans', sans-serif;
+}
+.orden-bar select:focus { border-color: #18cfd7; }
 </style>
